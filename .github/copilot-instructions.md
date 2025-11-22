@@ -1,7 +1,13 @@
 # Copilot Instructions
 
 ## Project Overview
-This is a Phaser 3 game built with TypeScript and Vite. The project uses a scene-based architecture where each game state (Boot, Preloader, MainMenu, Game, GameOver) is a separate Phaser scene class.
+This is "Mission Kritisk" - a Phaser 3 game built with TypeScript and Vite. The project uses a scene-based architecture where each game state (Boot, Preloader, MainMenu, Game, GameOver) is a separate Phaser scene class.
+
+## Language Guidelines
+- **Code, comments, variable names, function names**: English
+- **User-facing text (in-game text, UI labels, menu items)**: Danish
+- **Documentation (README.md, etc.)**: Danish
+- **Code structure and technical implementation**: English
 
 ## Architecture Patterns
 
@@ -49,13 +55,27 @@ npm run build-nolog # Production build without analytics
 ## Project-Specific Conventions
 
 ### Scene Property Declarations
-Always declare Phaser objects as class properties with explicit types:
+Always declare Phaser objects as class properties with explicit types (in English):
 ```typescript
 export class MainMenu extends Scene {
     background: GameObjects.Image;
     logo: GameObjects.Image;
-    title: GameObjects.Text;
+    title: GameObjects.Text;  // Display text will be in Danish
 }
+```
+
+### User-Facing Text
+All text displayed to users should be in Danish:
+```typescript
+// Good - Danish user-facing text
+this.title = this.add.text(512, 460, 'Mission Kritisk', {
+    fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff'
+});
+
+// Good - English code and comments
+this.gameover_text = this.add.text(512, 384, 'Spillet Slut', {
+    fontFamily: 'Arial Black', fontSize: 64, color: '#ffffff'
+});
 ```
 
 ### Game Configuration
