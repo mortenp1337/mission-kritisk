@@ -5,6 +5,7 @@ import { MainMenu } from './scenes/MainMenu';
 import { GradeSelection } from './scenes/GradeSelection';
 import { MathChallenge } from './scenes/MathChallenge';
 import { TowerPlacement } from './scenes/TowerPlacement';
+import { DefenseWave } from './scenes/DefenseWave';
 import { AUTO, Game } from 'phaser';
 import { Preloader } from './scenes/Preloader';
 
@@ -23,6 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
         GradeSelection,
         MathChallenge,
         TowerPlacement,
+        DefenseWave,
         MainGame,
         GameOver
     ]
