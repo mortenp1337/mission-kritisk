@@ -1,0 +1,45 @@
+// Game session and state types
+
+export interface GameSession {
+    grade: number;                    // Selected grade level (0-3)
+    coins: number;                    // Current coin balance
+    currentWave: number;              // Wave number (1-5)
+    baseHealth: number;               // Base health points (starts at 10)
+    placedTowers: PlacedTowerData[];  // Array of tower placements
+    problemsSolved: number;           // Count of correctly answered problems this wave
+    totalScore: number;               // Accumulated score across all waves
+}
+
+export interface PlacedTowerData {
+    type: TowerType;
+    position: GridPosition;
+    level: number;
+}
+
+export interface GridPosition {
+    row: number;
+    col: number;
+}
+
+export interface ScreenPosition {
+    x: number;
+    y: number;
+}
+
+export enum TowerType {
+    Basic = 'basic',
+    Rapid = 'rapid',
+    Area = 'area'
+}
+
+export enum CellType {
+    Empty = 'empty',
+    Occupied = 'occupied',
+    Path = 'path',
+    Base = 'base'
+}
+
+export interface CoinBalance {
+    amount: number;
+    lastUpdated: number;
+}
