@@ -1,8 +1,62 @@
-# Phaser Vite TypeScript Template
+# Phaser Vite TypeScript Template - Mission Kritisk
 
 This is a Phaser 3 project template that uses Vite for bundling. It supports hot-reloading for quick development workflow, includes TypeScript support and scripts to generate production-ready builds.
 
+This project includes automated deployment workflows and comprehensive testing with Playwright.
+
 **[This Template is also available as a JavaScript version.](https://github.com/phaserjs/template-vite)**
+
+## 🚀 Deployment & Workflows
+
+This project features automated CI/CD workflows:
+
+### Main Branch Deployment
+- **Trigger**: Push to `main` branch
+- **Destination**: GitHub Pages root (`https://mortenp1337.github.io/mission-kritisk/`)
+- **Process**: 
+  1. Runs full Playwright test suite
+  2. Builds production version
+  3. Deploys to GitHub Pages root
+
+### PR Preview Deployment
+- **Trigger**: Opening/updating Pull Requests
+- **Destination**: GitHub Pages preview folder (`https://mortenp1337.github.io/mission-kritisk/preview/pr-{number}/`)
+- **Features**:
+  1. Runs full test suite
+  2. Creates isolated preview environment
+  3. Posts preview URL as PR comment
+  4. Auto-updates on new commits
+  5. Cleans up on PR closure
+
+### Continuous Integration
+- **Trigger**: All pushes and PRs
+- **Tests**: Matrix testing on Node.js 18 & 20
+- **Coverage**: Playwright tests across Chrome, Firefox, Safari
+
+## 🧪 Testing
+
+The project includes comprehensive end-to-end testing with Playwright:
+
+```bash
+# Run tests in development mode
+npm run test
+
+# Run tests with visible browser
+npm run test:headed
+
+# Run tests with UI mode
+npm run test:ui
+
+# Test production build
+npm run test:prod
+```
+
+Test coverage includes:
+- Game loading and initialization
+- Scene transitions and interactions
+- Responsive design validation
+- Asset loading verification
+- Build integrity checks
 
 ### Versions
 
@@ -25,8 +79,13 @@ This template has been updated for:
 | `npm install` | Install project dependencies |
 | `npm run dev` | Launch a development web server |
 | `npm run build` | Create a production build in the `dist` folder |
-| `npm run dev-nolog` | Launch a development web server without sending anonymous data (see "About log.js" below) |
-| `npm run build-nolog` | Create a production build in the `dist` folder without sending anonymous data (see "About log.js" below) |
+| `npm run dev-nolog` | Launch a development web server without sending anonymous data |
+| `npm run build-nolog` | Create a production build without sending anonymous data |
+| `npm run preview` | Preview the production build locally |
+| `npm run test` | Run Playwright tests |
+| `npm run test:headed` | Run Playwright tests with visible browser |
+| `npm run test:ui` | Run Playwright tests in interactive UI mode |
+| `npm run test:prod` | Run Playwright tests against production build |
 
 ## Writing Code
 
