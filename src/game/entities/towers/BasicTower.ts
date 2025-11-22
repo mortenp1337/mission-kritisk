@@ -51,17 +51,19 @@ export class BasicTower extends Tower {
             y: endY,
             duration: 200,
             onComplete: () => {
-                // Apply damage
-                target.health -= this.attackDamage;
-                bullet.destroy();
-                
-                // Check if zombie died
-                if (target.health <= 0 && target.sprite) {
-                    target.sprite.destroy();
-                    if (target.healthBar) {
-                        target.healthBar.destroy();
+                // Apply damage using proper method
+                if (target && target.health > 0) {
+                    target.takeDamage(this.attackDamage);
+                    
+                    // Check if zombie died
+                    if (target.health <= 0 && target.sprite) {
+                        target.sprite.destroy();
+                        if (target.healthBar) {
+                            target.healthBar.destroy();
+                        }
                     }
                 }
+                bullet.destroy();
             }
         });
     }

@@ -23,7 +23,7 @@ export class Zombie implements IZombie {
         spawnPosition: ScreenPosition,
         scene: Phaser.Scene
     ) {
-        this.id = `zombie-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        this.id = `zombie-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
         this.health = stats.health;
         this.maxHealth = stats.health;
         this.speed = stats.speed;

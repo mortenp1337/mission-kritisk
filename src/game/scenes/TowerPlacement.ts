@@ -145,7 +145,7 @@ export class TowerPlacement extends Scene {
         }
         
         this.placementMode = true;
-        this.feedbackText.setText('Vælg en tom celle på griddet');
+        this.feedbackText.setText('Vælg en celle på griddet'); // Could add to DanishText
     }
     
     private updateHighlight(gridPos: { row: number; col: number } | null): void {

@@ -77,7 +77,7 @@ export class GradeSelection extends Scene {
         }
         
         // Instructions
-        this.add.text(512, 600, 'Vælg din klasse for at starte', {
+        this.add.text(512, 600, 'Vælg din klasse', {  // Could add to DanishText
             fontFamily: 'Arial',
             fontSize: 20,
             color: '#cccccc',

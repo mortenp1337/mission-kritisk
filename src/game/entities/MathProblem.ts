@@ -32,7 +32,7 @@ export class MathProblemEntity implements MathProblem {
         difficulty: number,
         operation: MathOperation
     ) {
-        this.id = `prob-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        this.id = `prob-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
         this.question = question;
         this.correctAnswer = correctAnswer;
         this.distractors = distractors;

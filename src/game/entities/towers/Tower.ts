@@ -1,7 +1,7 @@
 // Tower base class - defensive structure that targets and shoots enemies
-import { GridPosition } from '../types/GameTypes';
-import { TowerStats } from '../types/TowerTypes';
-import { Zombie } from '../types/EnemyTypes';
+import { GridPosition } from '../../types/GameTypes';
+import { TowerStats } from '../../types/TowerTypes';
+import { Zombie } from '../../types/EnemyTypes';
 
 export abstract class Tower {
     id: string;
@@ -28,7 +28,7 @@ export abstract class Tower {
         stats: TowerStats,
         scene: Phaser.Scene
     ) {
-        this.id = `tower-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        this.id = `tower-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
         this.type = type;
         this.position = position;
         this.level = 1;
