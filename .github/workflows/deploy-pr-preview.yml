@@ -83,7 +83,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [build-main, build-pr]
-    if: always() && needs.build-main.result == 'success'
+    if: always() && (needs.build-main.result == 'success') && (needs.build-pr.result == 'success' || needs.build-pr.result == 'skipped')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -95,12 +95,11 @@ jobs:
         path: dist-main/
 
     - name: Download PR build artifact
-      if: github.ref_name != 'main'
+      if: github.ref_name != 'main' && needs.build-pr.result == 'success'
       uses: actions/download-artifact@v4
       with:
         name: dist-pr
         path: dist-pr/
-      continue-on-error: true
 
     - name: Combine artifacts
       run: |
@@ -111,8 +110,8 @@ jobs:
         cp -r dist-main/* combined/
         echo "✅ Main branch content copied to root"
 
-        # If this is a preview deployment (not main branch), add preview subdirectory
-        if [ "${{ github.ref_name }}" != "main" ]; then
+        # If PR artifacts exist, add preview subdirectory
+        if [ -d "dist-pr" ]; then
           mkdir -p combined/preview
           cp -r dist-pr/* combined/preview/
           echo "✅ PR branch content copied to preview/"
@@ -131,8 +130,8 @@ jobs:
         test -d combined/assets || (echo "::error::Missing assets directory at root" && exit 1)
         echo "✅ Root content validated"
 
-        # Validate preview content (if preview deployment)
-        if [ "${{ github.ref_name }}" != "main" ]; then
+        # Validate preview content (if preview directory exists)
+        if [ -d "combined/preview" ]; then
           test -f combined/preview/index.html || (echo "::error::Missing preview/index.html" && exit 1)
           test -f combined/preview/style.css || (echo "::error::Missing preview/style.css" && exit 1)
           test -d combined/preview/assets || (echo "::error::Missing preview/assets directory" && exit 1)
@@ -185,7 +184,7 @@ jobs:
         echo ""
         echo "Production URL: ${{ steps.deployment.outputs.page_url }}"
 
-        if [ "${{ github.ref_name }}" != "main" ]; then
+        if [ -d "combined/preview" ]; then
           echo "Preview URL: ${{ steps.deployment.outputs.page_url }}preview/"
           echo ""
           echo "ℹ️  Note: Only the most recent preview deployment is active."
