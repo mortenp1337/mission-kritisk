@@ -1,0 +1,192 @@
+name: Deploy PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent preview deployment, cancelling in-progress runs to save resources
+concurrency:
+  group: "pages-preview"
+  cancel-in-progress: true
+
+jobs:
+  build-main:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build main branch
+      id: build-main
+      continue-on-error: true
+      run: npm run build-nolog
+
+    - name: Check build status
+      if: steps.build-main.outcome == 'failure'
+      run: |
+        echo "::warning::Main branch build failed. This might affect preview deployment."
+        echo "::warning::Consider fixing main branch build issues."
+        exit 1
+
+    - name: Upload main build artifact
+      if: steps.build-main.outcome == 'success'
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-main
+        path: dist/
+        retention-days: 1
+
+  build-pr:
+    runs-on: ubuntu-latest
+    if: github.ref_name != 'main'
+    steps:
+    - name: Checkout PR branch
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build PR branch
+      run: npm run build-nolog
+
+    - name: Upload PR build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-pr
+        path: dist/
+        retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-main, build-pr]
+    if: always() && (needs.build-main.result == 'success') && (needs.build-pr.result == 'success' || needs.build-pr.result == 'skipped')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Download main build artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-main
+        path: dist-main/
+
+    - name: Download PR build artifact
+      if: github.ref_name != 'main' && needs.build-pr.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-pr
+        path: dist-pr/
+
+    - name: Combine artifacts
+      run: |
+        echo "Creating combined deployment structure..."
+        mkdir -p combined
+
+        # Copy main branch content to root
+        cp -r dist-main/* combined/
+        echo "✅ Main branch content copied to root"
+
+        # If PR artifacts exist, add preview subdirectory
+        if [ -d "dist-pr" ]; then
+          mkdir -p combined/preview
+          cp -r dist-pr/* combined/preview/
+          echo "✅ PR branch content copied to preview/"
+          echo "Deployment type: PREVIEW (main at root + PR in /preview/)"
+        else
+          echo "Deployment type: PRODUCTION (main only at root)"
+        fi
+
+    - name: Validate artifact structure
+      run: |
+        echo "Validating combined artifact structure..."
+
+        # Validate root content (always required)
+        test -f combined/index.html || (echo "::error::Missing index.html at root" && exit 1)
+        test -f combined/style.css || (echo "::error::Missing style.css at root" && exit 1)
+        test -d combined/assets || (echo "::error::Missing assets directory at root" && exit 1)
+        echo "✅ Root content validated"
+
+        # Validate preview content (if preview directory exists)
+        if [ -d "combined/preview" ]; then
+          test -f combined/preview/index.html || (echo "::error::Missing preview/index.html" && exit 1)
+          test -f combined/preview/style.css || (echo "::error::Missing preview/style.css" && exit 1)
+          test -d combined/preview/assets || (echo "::error::Missing preview/assets directory" && exit 1)
+          echo "✅ Preview content validated"
+        fi
+
+        echo "✅ All validation checks passed"
+
+    - name: Log artifact structure
+      run: |
+        echo "Combined artifact structure:"
+        ls -lah combined/
+        echo ""
+        if [ -d combined/preview ]; then
+          echo "Preview subdirectory:"
+          ls -lah combined/preview/
+        fi
+
+    - name: Check artifact size
+      run: |
+        SIZE=$(du -sm combined | cut -f1)
+        echo "Combined artifact size: ${SIZE}MB"
+
+        if [ $SIZE -gt 1000 ]; then
+          echo "::error::Artifact size ${SIZE}MB exceeds 1GB GitHub Pages limit"
+          exit 1
+        fi
+
+        if [ $SIZE -gt 800 ]; then
+          echo "::warning::Artifact size ${SIZE}MB is approaching 1GB limit (80%+)"
+        fi
+
+        echo "✅ Artifact size within limits"
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+
+    - name: Upload artifact to Pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './combined'
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+    - name: Log deployment URLs
+      run: |
+        echo "🚀 Deployment successful!"
+        echo ""
+        echo "Production URL: ${{ steps.deployment.outputs.page_url }}"
+
+        if [ -d "combined/preview" ]; then
+          echo "Preview URL: ${{ steps.deployment.outputs.page_url }}preview/"
+          echo ""
+          echo "ℹ️  Note: Only the most recent preview deployment is active."
+          echo "ℹ️  Previous previews are replaced by this deployment."
+        fi

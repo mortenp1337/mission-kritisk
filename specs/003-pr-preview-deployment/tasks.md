@@ -24,9 +24,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **Purpose**: Verify existing infrastructure is ready for preview deployments
 
-- [ ] T001 Verify GitHub Pages is enabled and configured at repository settings
-- [ ] T002 Verify repository permissions include `pages: write` and `id-token: write`
-- [ ] T003 Create feature branch `003-pr-preview-deployment` from main (if not exists)
+- [x] T001 Verify GitHub Pages is enabled and configured at repository settings
+- [x] T002 Verify repository permissions include `pages: write` and `id-token: write`
+- [x] T003 Create feature branch `003-pr-preview-deployment` from main (if not exists)
 
 ---
 
@@ -36,10 +36,10 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Review existing `.github/workflows/deploy-main.yml` workflow structure
-- [ ] T005 Document existing build process and artifact structure from main branch
-- [ ] T006 Verify Vite configuration `base: './'` supports subdirectory deployments
-- [ ] T007 Test that existing build output (`dist/`) has correct relative paths for assets
+- [x] T004 Review existing `.github/workflows/deploy-main.yml` workflow structure
+- [x] T005 Document existing build process and artifact structure from main branch
+- [x] T006 Verify Vite configuration `base: './'` supports subdirectory deployments
+- [x] T007 Test that existing build output (`dist/`) has correct relative paths for assets
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,17 +53,17 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Create `.github/workflows/deploy-pr-preview.yml` workflow file with basic structure and triggers
-- [ ] T009 [US1] Add workflow triggers in `.github/workflows/deploy-pr-preview.yml`: pull_request events (opened, synchronize, reopened) targeting main branch
-- [ ] T010 [US1] Add concurrency control in `.github/workflows/deploy-pr-preview.yml`: group "pages-preview", cancel-in-progress true
-- [ ] T011 [US1] Add permissions in `.github/workflows/deploy-pr-preview.yml`: contents read, pages write, id-token write
-- [ ] T012 [P] [US1] Create `build-main` job in `.github/workflows/deploy-pr-preview.yml` with checkout main branch (forced), setup Node.js 18, npm ci, npm run build-nolog, upload dist-main artifact
-- [ ] T013 [P] [US1] Create `build-pr` job in `.github/workflows/deploy-pr-preview.yml` with conditional execution (if ref_name != 'main'), checkout triggering branch, setup Node.js 18, npm ci, npm run build-nolog, upload dist-pr artifact
-- [ ] T014 [US1] Create `deploy` job in `.github/workflows/deploy-pr-preview.yml` with needs: [build-main, build-pr], environment: github-pages
-- [ ] T015 [US1] Add artifact download steps in deploy job: download dist-main artifact to main-build/, conditionally download dist-pr artifact to pr-build/ (if exists)
-- [ ] T016 [US1] Add artifact combination shell script in deploy job: copy main-build/* to combined/, conditionally copy pr-build/* to combined/preview/ (if branch != main)
-- [ ] T017 [US1] Add GitHub Pages upload steps in deploy job: configure-pages, upload-pages-artifact from combined/, deploy-pages
-- [ ] T018 [US1] Add deployment summary output in deploy job: log page_url and computed preview_url (page_url + '/preview/')
+- [x] T008 [US1] Create `.github/workflows/deploy-pr-preview.yml` workflow file with basic structure and triggers
+- [x] T009 [US1] Add workflow triggers in `.github/workflows/deploy-pr-preview.yml`: pull_request events (opened, synchronize, reopened) targeting main branch
+- [x] T010 [US1] Add concurrency control in `.github/workflows/deploy-pr-preview.yml`: group "pages-preview", cancel-in-progress true
+- [x] T011 [US1] Add permissions in `.github/workflows/deploy-pr-preview.yml`: contents read, pages write, id-token write
+- [x] T012 [P] [US1] Create `build-main` job in `.github/workflows/deploy-pr-preview.yml` with checkout main branch (forced), setup Node.js 18, npm ci, npm run build-nolog, upload dist-main artifact
+- [x] T013 [P] [US1] Create `build-pr` job in `.github/workflows/deploy-pr-preview.yml` with conditional execution (if ref_name != 'main'), checkout triggering branch, setup Node.js 18, npm ci, npm run build-nolog, upload dist-pr artifact
+- [x] T014 [US1] Create `deploy` job in `.github/workflows/deploy-pr-preview.yml` with needs: [build-main, build-pr], environment: github-pages
+- [x] T015 [US1] Add artifact download steps in deploy job: download dist-main artifact to main-build/, conditionally download dist-pr artifact to pr-build/ (if exists)
+- [x] T016 [US1] Add artifact combination shell script in deploy job: copy main-build/* to combined/, conditionally copy pr-build/* to combined/preview/ (if branch != main)
+- [x] T017 [US1] Add GitHub Pages upload steps in deploy job: configure-pages, upload-pages-artifact from combined/, deploy-pages
+- [x] T018 [US1] Add deployment summary output in deploy job: log page_url and computed preview_url (page_url + '/preview/')
 - [ ] T019 [US1] Test workflow by creating a test PR with minor game change (e.g., modify menu text)
 - [ ] T020 [US1] Verify preview URL is accessible and displays PR changes correctly with functional game assets
 
@@ -79,11 +79,11 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: check for preview directory, fail if found
-- [ ] T022 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify index.html exists in dist/
-- [ ] T023 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify assets directory exists in dist/
-- [ ] T024 [US2] Add deployment type notice in `.github/workflows/deploy-main.yml` before deployment: log "Deploying production build (main branch only)"
-- [ ] T025 [US2] Update concurrency group in `.github/workflows/deploy-main.yml`: ensure it differs from preview ("pages" vs "pages-preview"), cancel-in-progress false
+- [x] T021 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: check for preview directory, fail if found
+- [x] T022 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify index.html exists in dist/
+- [x] T023 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify assets directory exists in dist/
+- [x] T024 [US2] Add deployment type notice in `.github/workflows/deploy-main.yml` before deployment: log "Deploying production build (main branch only)"
+- [x] T025 [US2] Update concurrency group in `.github/workflows/deploy-main.yml`: ensure it differs from preview ("pages" vs "pages-preview"), cancel-in-progress false
 - [ ] T026 [US2] Test main branch deployment by merging a small change to main (or using workflow_dispatch)
 - [ ] T027 [US2] Verify production deployment contains no preview folder and all files are present
 
@@ -99,10 +99,10 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Update `.github/copilot-instructions.md` with preview system documentation: explain PR preview URLs, when they're available, how to access
-- [ ] T029 [US3] Add troubleshooting section to `.github/copilot-instructions.md`: common issues (404s, broken assets, deployment failures)
-- [ ] T030 [US3] Update `README.md` deployment section: document PR preview system, explain URL pattern, note single preview limitation
-- [ ] T031 [US3] Add reviewer workflow to `README.md`: how to find preview URL, what to test, how to provide feedback
+- [x] T028 [US3] Update `.github/copilot-instructions.md` with preview system documentation: explain PR preview URLs, when they're available, how to access
+- [x] T029 [US3] Add troubleshooting section to `.github/copilot-instructions.md`: common issues (404s, broken assets, deployment failures)
+- [x] T030 [US3] Update `README.md` deployment section: document PR preview system, explain URL pattern, note single preview limitation
+- [x] T031 [US3] Add reviewer workflow to `README.md`: how to find preview URL, what to test, how to provide feedback
 - [ ] T032 [US3] Test reviewer experience: create test PR, share preview URL with team member, gather feedback on accessibility
 - [ ] T033 [US3] Verify preview URL is accessible within 1 minute of workflow completion (per SC-008)
 
@@ -118,9 +118,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 4
 
-- [ ] T034 [US4] Add artifact structure logging in `.github/workflows/deploy-pr-preview.yml` deploy job: log directory tree of combined/ before upload
-- [ ] T035 [US4] Add size validation in `.github/workflows/deploy-pr-preview.yml` deploy job: check combined artifact size, warn if approaching 1GB limit
-- [ ] T036 [US4] Add deployment verification step in `.github/workflows/deploy-pr-preview.yml`: after deployment, log both root URL and preview URL
+- [x] T034 [US4] Add artifact structure logging in `.github/workflows/deploy-pr-preview.yml` deploy job: log directory tree of combined/ before upload
+- [x] T035 [US4] Add size validation in `.github/workflows/deploy-pr-preview.yml` deploy job: check combined artifact size, warn if approaching 1GB limit
+- [x] T036 [US4] Add deployment verification step in `.github/workflows/deploy-pr-preview.yml`: after deployment, log both root URL and preview URL
 - [ ] T037 [US4] Test combined deployment: create PR, wait for deployment, verify root URL serves main content
 - [ ] T038 [US4] Test combined deployment: verify preview URL serves PR content with correct asset paths
 - [ ] T039 [US4] Test that Vite's `base: './'` configuration works correctly in both root and preview contexts
@@ -137,9 +137,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 5
 
-- [ ] T040 [US5] Add `workflow_dispatch:` trigger to `.github/workflows/deploy-pr-preview.yml` (no inputs required)
-- [ ] T041 [US5] Verify branch detection logic works for workflow_dispatch: if github.ref_name == 'main', skip build-pr job
-- [ ] T042 [US5] Add usage documentation to `.github/copilot-instructions.md`: explain manual deployment process, branch selection, expected behavior
+- [x] T040 [US5] Add `workflow_dispatch:` trigger to `.github/workflows/deploy-pr-preview.yml` (no inputs required)
+- [x] T041 [US5] Verify branch detection logic works for workflow_dispatch: if github.ref_name == 'main', skip build-pr job
+- [x] T042 [US5] Add usage documentation to `.github/copilot-instructions.md`: explain manual deployment process, branch selection, expected behavior
 - [ ] T043 [US5] Test manual deployment on feature branch: trigger workflow_dispatch, select feature branch, verify preview created
 - [ ] T044 [US5] Test manual deployment on main branch: trigger workflow_dispatch, select main, verify production-only deployment (no preview)
 
@@ -151,7 +151,7 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **Purpose**: Implement robust error handling for main build failures and other edge cases
 
-- [ ] T045 Add error handling in `.github/workflows/deploy-pr-preview.yml` build-main job: continue-on-error for main build, cache last successful artifact
+- [x] T045 Add error handling in `.github/workflows/deploy-pr-preview.yml` build-main job: continue-on-error for main build, cache last successful artifact
 - [ ] T046 Add fallback logic in deploy job: if build-main failed, attempt to download cached main artifact from previous successful run
 - [ ] T047 Add warning notice in deploy job: if using cached main build, log warning with SHA and cache timestamp
 - [ ] T048 Add main build cache strategy: cache dist-main artifact on successful builds with key based on main branch SHA
@@ -164,16 +164,16 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **Purpose**: Finalization and validation of complete system
 
-- [ ] T051 [P] Review all workflow YAML files for consistency: naming conventions, step descriptions, error messages
-- [ ] T052 [P] Verify all official GitHub Actions use latest stable versions: checkout@v4, setup-node@v4, deploy-pages@v4, etc.
-- [ ] T053 [P] Validate no third-party actions used: scan both workflows, confirm only actions/* organization
+- [x] T051 [P] Review all workflow YAML files for consistency: naming conventions, step descriptions, error messages
+- [x] T052 [P] Verify all official GitHub Actions use latest stable versions: checkout@v4, setup-node@v4, deploy-pages@v4, etc.
+- [x] T053 [P] Validate no third-party actions used: scan both workflows, confirm only actions/* organization
 - [ ] T054 [P] Test all success criteria from spec.md: SC-001 through SC-008 validation
 - [ ] T055 Verify deployment time meets performance goal: PR preview < 5 minutes (SC-001), main deployment no regression (SC-006)
 - [ ] T056 Run through quickstart.md scenarios: validate all documented workflows function as described
 - [ ] T057 Create test PR for final validation: test all triggers (open, synchronize, reopen), verify URLs, test game functionality
 - [ ] T058 Verify zero preview folders in main deployments: run main deployment after PR preview, confirm clean production
-- [ ] T059 Validate predictable preview URL: confirm `/preview/` path is consistent across all deployments (SC-004)
-- [ ] T060 Final documentation review: ensure README.md and copilot-instructions.md are accurate and complete
+- [x] T059 Validate predictable preview URL: confirm `/preview/` path is consistent across all deployments (SC-004)
+- [x] T060 Final documentation review: ensure README.md and copilot-instructions.md are accurate and complete
 
 ---
 
