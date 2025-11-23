@@ -8,6 +8,7 @@ export interface GameSession {
     placedTowers: PlacedTowerData[];  // Array of tower placements
     problemsSolved: number;           // Count of correctly answered problems this wave
     totalScore: number;               // Accumulated score across all waves
+    gameSpeed: number;                // Current game speed multiplier (0.5x to 2.0x)
 }
 
 export interface PlacedTowerData {
@@ -42,4 +43,11 @@ export enum CellType {
 export interface CoinBalance {
     amount: number;
     lastUpdated: number;
+}
+
+export interface SpeedControlConfig {
+    minSpeed: number;           // Minimum speed multiplier (e.g., 0.5x)
+    maxSpeed: number;           // Maximum speed multiplier (e.g., 2.0x)
+    speedStep: number;          // Speed increment/decrement per button press (e.g., 0.5x)
+    debounceDelay: number;      // Minimum milliseconds between button presses (e.g., 100ms)
 }

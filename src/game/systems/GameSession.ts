@@ -11,6 +11,7 @@ export class GameSession implements IGameSession {
     placedTowers: PlacedTowerData[];
     problemsSolved: number;
     totalScore: number;
+    gameSpeed: number;
     
     private constructor() {
         this.reset();
@@ -31,6 +32,7 @@ export class GameSession implements IGameSession {
         this.placedTowers = [];
         this.problemsSolved = 0;
         this.totalScore = 0;
+        this.gameSpeed = 1.0;
     }
     
     setGrade(grade: number): void {
@@ -86,5 +88,15 @@ export class GameSession implements IGameSession {
     
     hasWon(): boolean {
         return this.currentWave > 5 && this.baseHealth > 0;
+    }
+    
+    setGameSpeed(multiplier: number): void {
+        const MIN_SPEED = 0.5;
+        const MAX_SPEED = 5.0;  // Increased max speed to 5x
+        this.gameSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, multiplier));
+    }
+    
+    resetGameSpeed(): void {
+        this.gameSpeed = 1.0;
     }
 }

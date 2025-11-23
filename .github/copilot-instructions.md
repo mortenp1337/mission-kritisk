@@ -180,7 +180,80 @@ Use workflow_dispatch for ad-hoc deployments:
 - `src/game/main.ts` - Game configuration and scene registration
 - `src/game/scenes/Boot.ts` - Minimal asset loading pattern
 - `src/game/scenes/Preloader.ts` - Progress bar implementation
+- `src/game/scenes/DefenseWave.ts` - Main wave gameplay scene with speed control integration
+- `src/game/entities/SpeedControl.ts` - Speed adjustment UI buttons and display
+- `src/game/entities/towers/Tower.ts` - Tower fire rate scaling with timeScale
+- `src/game/entities/enemies/Zombie.ts` - Zombie movement scaling with timeScale
+- `src/game/systems/WaveManager.ts` - Zombie spawn timing scaling with timeScale
 - `vite/config.prod.mjs` - Production build optimizations
 - `tsconfig.json` - Phaser-compatible TypeScript settings
 - `.github/workflows/deploy-main.yml` - Production deployment workflow
 - `.github/workflows/deploy-pr-preview.yml` - PR preview deployment workflow
+
+## Game Speed Control
+
+### Overview
+The game supports adjustable speed controls during waves (0.5x to 5.0x) via `SpeedControl` UI component. Speed adjustments use Phaser's `time.timeScale` to globally affect all game systems.
+
+### Architecture
+
+**SpeedControl UI Entity** (`src/game/entities/SpeedControl.ts`):
+- Provides +/- buttons positioned at bottom-right (x: 860-990, y: 720)
+- Additive stepping: ±0.5x per press (1.0x → 1.5x → 2.0x ... up to 5.0x)
+- 100ms debounce prevents rapid button mashing
+- Updates display text in real-time ("1.0x", "1.5x", etc.)
+
+**Speed Application** (`src/game/scenes/DefenseWave.ts`):
+```typescript
+// Speed callback connected to SpeedControl
+this.speedControl = new SpeedControl(this, (speed: number) => {
+    this.time.timeScale = speed;  // Affects all Phaser systems
+    this.session.setGameSpeed(speed);  // Persist state
+});
+```
+
+### Systems Affected by Speed Control
+
+**Automatically Scaled by Phaser**:
+- Physics bodies and tweens
+- Timer events
+- Animations and projectiles
+- Delays (`time.delayedCall`)
+
+**Manually Scaled** (require `delta * scene.time.timeScale`):
+- Custom movement calculations (Zombie, Tower)
+- Manual timing logic (spawn intervals)
+
+### Implementation Pattern
+
+When implementing custom movement or timing:
+```typescript
+// ✅ CORRECT: Scale manual calculations
+update(delta: number): void {
+    const scaledDelta = delta * this.scene.time.timeScale;
+    const moveDistance = (this.speed * scaledDelta) / 1000;
+    // ... move logic
+}
+
+// ✅ CORRECT: Scale manual fire rate checks
+canFire(time: number): boolean {
+    const scaledFireRate = this.fireRate / this.scene.time.timeScale;
+    return time >= this.lastFireTime + scaledFireRate;
+}
+
+// ❌ WRONG: Phaser systems don't need manual scaling
+this.tweens.add({ duration: 200 });  // Already respects timeScale
+this.time.delayedCall(1000, callback);  // Already respects timeScale
+```
+
+### Reset Behavior
+Game speed automatically resets to 1.0x when:
+- Wave completes
+- Game over (base destroyed)
+- Scene transitions
+
+Reset logic in `DefenseWave.ts`:
+```typescript
+this.time.timeScale = 1.0;
+this.session.resetGameSpeed();
+```

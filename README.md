@@ -54,6 +54,23 @@ You can manually trigger preview deployments:
 - Verify game functionality, UI elements, and Danish text
 - No need to check out branch locally for basic testing
 
+## 🎮 Game Features
+
+### Adjustable Game Speed Control
+Control the pace of gameplay with real-time speed adjustment:
+
+- **Speed Range**: 0.5x (slow motion) to 5.0x (fast forward)
+- **Controls**: +/- buttons positioned at bottom-right during waves
+- **Incremental Stepping**: 0.5x per button press (smooth progression)
+- **Real-time Feedback**: Visual speed display updates instantly
+- **Smart Scaling**: Affects all gameplay elements proportionally:
+  - Enemy movement and spawn timing
+  - Tower fire rate and projectile speed
+  - Wave duration and completion time
+- **Reset Behavior**: Automatically resets to 1.0x between waves
+
+**Usage**: During DefenseWave scene, press the +/- buttons at bottom-right to adjust game speed. All enemies and towers respond dynamically to speed changes while maintaining gameplay balance.
+
 ### Continuous Integration
 - **Workflow**: `.github/workflows/ci.yml`
 - **Trigger**: All pushes and PRs

@@ -106,13 +106,13 @@ src/game/
 - Coin display: top-left (50, 30)
 - Wave counter: top-center (512, 30)
 - Base health: top-right (950, 30)
-- Identify safe positioning area: bottom-right corner (x=850-1000, y=670-750)
+- Identify safe positioning area: top-right corner (x=860-1020, y=30-60)
 
 #### 3.2 Position SpeedControl buttons
-- Place decreasing button (-) at x=880, y=700
-- Place speed display at x=950, y=700
-- Place increasing button (+) at x=1020, y=700
-- Verify buttons don't overlap with grid cells or wave UI
+- Place decreasing button (-) at x=860, y=50
+- Place speed display at x=925, y=50
+- Place increasing button (+) at x=990, y=50
+- Verify buttons don't overlap with grid cells or existing top-right UI
 - Use font size 24 for buttons, 20 for speed display
 
 #### 3.3 Ensure input hit detection
