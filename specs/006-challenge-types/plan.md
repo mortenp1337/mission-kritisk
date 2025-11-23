@@ -9,6 +9,10 @@
 
 Restructure the game's challenge selection system from grade-based (Klasse 0-3) to difficulty-based (Niveau 1-4) with categorized challenge types. Introduce two category groups: "Regnearter" (Arithmetic Operations) containing existing math operations, and "Logik Opgaver" (Logic Puzzles) featuring a new halves/doubles challenge with emoji-based visual representations, multiple choice format, and deterministic problem generation. The system will use submenu navigation and reuse existing scoring/coin reward logic for consistency.
 
+**Terminology Standardization**: Use "Regnearter" (Arithmetic Operations), "Logik Opgaver" (Logic Puzzles), "ChallengeTypeMenu" (PascalCase scene name). Difficulty mapping: 1→Grade 0, 2→Grade 1, 3→Grade 2, 4→Grade 3 (formula: `grade = difficulty - 1`).
+
+**Bilingual Requirement**: English code/properties/comments, Danish display text only. All variable names, class names, function names must be English. All UI labels, button text, feedback messages must be Danish.
+
 ## Technical Context
 
 **Language/Version**: TypeScript 5.7+  
@@ -218,11 +222,16 @@ No justification needed for architectural choices.
 **Question**: What are the complete generation rules for valid, non-repetitive halves and doubles problems?
 
 **Investigation**:
-- Define constraints for halving (starting with even numbers, whole number results)
-- Define constraints for doubling (result limits per difficulty level)
-- Design distractor generation algorithm (off-by-one, reversed operation, etc.)
+- Define constraints for halving (starting with even numbers, whole number results only, no decimals)
+- Define constraints for doubling (starting value limits per difficulty, result limits can exceed starting limits)
+- Design distractor generation algorithm (off-by-one: ±1, reversed operation: double↔halve, adjacent value)
 - Create uniqueness tracking strategy (hash problem structure, not just answer)
-- Establish real-world scenario templates (prices, quantities, recipes)
+- Establish real-world scenario templates (prices, quantities, recipes) with 30% enforcement (every 3-4 problems)
+
+**Result Limits** (per clarifications):
+- Starting values: Difficulty 1=under 10, 2=under 20, 3=under 35, 4=up to 50
+- Halving results: Same as starting value limits (result under 10/20/35/50)
+- Doubling results: Can exceed starting limits (1=under 20, 2=under 40, 3=under 70, 4=under 100)
 
 **Expected Output**: Algorithmic specification for problem generation in research.md
 
@@ -321,19 +330,22 @@ Challenge flow: DifficultySelection → CategorySelection → ChallengeTypeMenu 
 - ChallengeTypeMenu scene interface
 - Navigation state management contract (scene data vs GameSession)
 - Back navigation behavior specification
+- Arithmetic operation filtering rules: Difficulty 1=Addition only, 2=+Subtraction, 3=+Multiplication, 4=All operations
 
 **Contract 3: Logic Problem Engine** (`logic-problem-engine.md`)
 - LogicProblemGenerator class interface
 - generate() method signature with difficulty parameter
-- validate() method for problem correctness
-- Distractor generation algorithm specification
+- validate() method for problem correctness (whole numbers only, no decimals)
+- Distractor generation algorithm specification: randomly select 2-3 from {off-by-1 (±1), reversed operation, adjacent value}, ensure uniqueness
 - Emoji grouping notation rules (7+ items threshold)
+- Real-world scenario enforcement: 30% minimum via counter (every 3-4 problems)
 
 **Contract 4: Scoring Integration** (`scoring-integration.md`)
 - Coin reward calculation interface (reuse from MathChallenge)
 - LogicChallenge.handleAnswer() method signature
 - GameSession.addCoins() usage pattern
 - Attempt tracking and reward eligibility rules (correct on first or second attempt)
+- Validation requirement: Logic puzzles at difficulty 2 wave 1 must earn identical coins to arithmetic challenges
 
 #### D3: Quickstart Guide (`quickstart.md`)
 
@@ -371,6 +383,7 @@ Challenge flow: DifficultySelection → CategorySelection → ChallengeTypeMenu 
 5. ✅ `contracts/scoring-integration.md` - Coin reward reuse contracts
 6. ✅ `quickstart.md` - Developer onboarding guide
 7. ✅ Updated `.github/copilot-instructions.md` - Agent context with new patterns
+8. ✅ Bilingual compliance checkpoint - Verify English code with Danish display text only
 
 ---
 
@@ -399,10 +412,11 @@ Challenge flow: DifficultySelection → CategorySelection → ChallengeTypeMenu 
 - `MathChallenge` scene structure - template for LogicChallenge multiple choice UI
 - `MathProblemGenerator` pattern - model for LogicProblemGenerator architecture
 - `danishText.ts` centralized strings - extend with new UI labels
-- `getGradeTemplates()` scaling - adapt for difficulty parameter
+- `getGradeTemplates()` scaling - adapt for difficulty parameter (use formula: grade = difficulty - 1)
+- `calculateWaveConfig()` from waveConfig.ts - reuse for logic puzzle coin rewards
 
 **Deprecation path**:
-- `GradeSelection` scene → replaced by `DifficultySelection` scene
+- `GradeSelection` scene → replaced by `DifficultySelection` scene (deprecate but keep for gradual migration)
 - `GameSession.grade` property → migrated to `GameSession.difficulty` (with backward compatibility shim if needed for existing saves)
 
 ### Performance Considerations

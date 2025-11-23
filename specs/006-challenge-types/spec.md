@@ -14,6 +14,10 @@
 - Q: Should the difficulty level labels use descriptive names or just numbers? → A: Numbers with descriptive subtitles (e.g., "Niveau 1 - Begynder", "Niveau 2 - Let Øvet")
 - Q: When displaying emoji grouping notation for large quantities (e.g., "🍎×8"), at what threshold should grouping begin? → A: 7 or more items
 - Q: Should coins earned from logic puzzles match arithmetic challenge rewards or use a different reward structure? → A: Match existing reward structure (maintain consistency across challenge types)
+- Q: How do difficulty levels (1-4) map to the existing grade system (0-3)? → A: Direct mapping using formula: grade = difficulty - 1 (Difficulty 1→Grade 0, 2→1, 3→2, 4→3)
+- Q: What constitutes "same emoji" for variation tracking? → A: Same emoji character (🍎 is different from 🍐), regardless of category
+- Q: How are distractor answers selected when multiple types are available? → A: Randomly select 2-3 from available valid distractor types (off-by-1, reversed operation, adjacent value), ensuring all values are unique
+- Q: Are decimal answers supported for halves/doubles problems? → A: No, v1 only supports whole number answers. Problems must be designed to produce whole number results only.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,10 +97,10 @@ As the system generates halves and doubles problems, it needs to verify that all
 
 ### Edge Cases
 
-- What happens when difficulty level 1 is selected but the requested challenge type is too advanced (e.g., division)? System should either disable unavailable challenge types in the submenu or show an appropriate message.
-- How does the system handle returning to the challenge type selection menu after starting a challenge? Should preserve difficulty selection and category state.
+- What happens when difficulty level 1 is selected but the requested challenge type is too advanced (e.g., division)? System MUST disable unavailable challenge types in the submenu by either graying out buttons or hiding them entirely based on the difficulty-to-operations mapping in FR-009. Division should not be visible/selectable until difficulty 4.
+- How does the system handle returning to the challenge type selection menu after starting a challenge? System MUST preserve difficulty selection and category state in GameSession. Back button navigation from any submenu must restore the previous menu state without requiring re-selection. This behavior must be validated in E2E tests.
 - What happens if a halves problem would require decimal answers (e.g., 5 ÷ 2)? System should only generate problems with whole number answers or clearly indicate decimal expectations.
-- How does the system present multiple choice options when emoji counts become large (e.g., 20+ items)? Should use grouping notation (e.g., "🍎×8") for 7 or more items or limit problem ranges.
+- How does the system present multiple choice options when emoji counts become large (e.g., 20+ items)? System uses grouping notation (e.g., "🍎×8") for 7 or more items per FR-020. Real-world scenario templates must use appropriate Danish phrasing and cultural conventions (Danish kroner for prices, metric measurements). Example templates should be provided in data-model.md with Danish text review for cultural appropriateness.
 - What happens when both attempts fail for a logic puzzle? Should show the correct answer with explanation and move to next problem (no third attempt).
 - How are coins awarded for logic puzzles? Should match the existing reward structure used for arithmetic challenges to maintain consistency.
 
@@ -117,7 +121,7 @@ As the system generates halves and doubles problems, it needs to verify that all
 
 - **FR-007**: System MUST include existing math challenge types (addition, subtraction, multiplication, division) under the "Regnearter" category
 - **FR-008**: System MUST map difficulty levels 1-4 to the existing grade 0-3 problem templates for arithmetic challenges
-- **FR-009**: System MUST display only appropriate arithmetic operations in the submenu based on selected difficulty level (e.g., difficulty 1 shows only addition)
+- **FR-009**: System MUST display only appropriate arithmetic operations in the submenu based on selected difficulty level using the following mapping: Difficulty 1 = Addition only, Difficulty 2 = Addition + Subtraction, Difficulty 3 = Addition + Subtraction + Multiplication, Difficulty 4 = All operations (Addition + Subtraction + Multiplication + Division)
 
 **Logic Puzzles Category - Halves and Doubles**
 
@@ -125,10 +129,10 @@ As the system generates halves and doubles problems, it needs to verify that all
 - **FR-011**: System MUST generate problems that test understanding of halving quantities (e.g., "8 items → what is half?")
 - **FR-012**: System MUST generate problems that test understanding of doubling quantities (e.g., "3 items → what is double?")
 - **FR-013**: System MUST use emoji representations for visual quantities (🍎 apples, 🍐 pears, 🐵 monkeys, ⬜ squares, etc.)
-- **FR-014**: System MUST include real-world context scenarios in at least 30% of problems (e.g., half-price at supermarket, doubling recipe ingredients)
-- **FR-015**: System MUST present all halves/doubles problems in multiple choice format with 3-4 answer options
+- **FR-014**: System MUST include real-world context scenarios in at least 30% of problems (e.g., half-price at supermarket, doubling recipe ingredients). Implementation: Every 3rd or 4th problem generated must use a real-world context scenario (tracked via counter in LogicProblemGenerator)
+- **FR-015**: System MUST present all halves/doubles problems in multiple choice format with 3-4 answer options. Use 3 options when only 3 valid distractors can be generated, otherwise default to 4 options
 - **FR-016**: System MUST generate exactly one correct answer per problem
-- **FR-017**: System MUST generate 2-3 plausible distractor answers that are mathematically related but incorrect
+- **FR-017**: System MUST generate 2-3 plausible distractor answers that are mathematically related but incorrect. Distractor types include: off-by-1 (±1 from correct answer), reversed operation (e.g., doubled instead of halved), and adjacent value (nearby plausible value). When generating, randomly select 2-3 from available valid distractor types, ensuring all values are unique and different from the correct answer
 - **FR-018**: System MUST require users to complete 3 halves/doubles problems before earning coins and progressing to tower placement (matching existing math challenge behavior)
 - **FR-019**: System MUST allow 2 attempts per problem - display correct answer with explanation after second incorrect attempt
 - **FR-020**: System MUST use grouping notation (e.g., "🍎×8") when displaying 7 or more items in problems or answer choices
@@ -137,18 +141,18 @@ As the system generates halves and doubles problems, it needs to verify that all
 **Problem Generation & Verification**
 
 - **FR-022**: System MUST implement deterministic logic engine for halves/doubles that guarantees valid, solvable problems
-- **FR-023**: System MUST verify that halving operations produce whole number results (no decimals unless explicitly supported)
+- **FR-023**: System MUST verify that halving operations produce whole number results. Decimal answers are NOT supported in v1 - all problems must be designed to produce whole number results only
 - **FR-024**: System MUST verify that doubling operations stay within reasonable magnitude limits for the difficulty level
-- **FR-025**: System MUST ensure generated problems are non-repetitive within a game session (track used problems)
-- **FR-026**: System MUST vary emoji types and scenarios across consecutive problems (no more than 2 consecutive problems with same emoji)
-- **FR-027**: System MUST scale problem complexity based on selected difficulty level (1=simple quantities under 10, 2=quantities under 20, 3=quantities under 35, 4=quantities up to 50)
+- **FR-025**: System MUST ensure generated problems are non-repetitive within a game session (track used problems). Problem uniqueness tracking resets on GameSession.reset() and is limited to current session only (not persistent across browser sessions)
+- **FR-026**: System MUST vary emoji types and scenarios across consecutive problems (no more than 2 consecutive problems with same emoji character). Definition: 'same emoji' means identical emoji character (🍎 vs 🍐 are different), regardless of category. Scenario variation means different template types (price vs recipe vs groups, etc.)
+- **FR-027**: System MUST scale problem complexity based on selected difficulty level using the following limits for STARTING values: Difficulty 1=under 10, Difficulty 2=under 20, Difficulty 3=under 35, Difficulty 4=up to 50. Note: Doubling operations may produce results that exceed starting value limits (e.g., difficulty 1 can start with 8, double to 16)
 
 **User Feedback**
 
-- **FR-028**: System MUST provide immediate validation feedback when user selects an answer (correct/incorrect indication)
+- **FR-028**: System MUST provide immediate validation feedback when user selects an answer (correct/incorrect indication) with color-coded text: green for correct answers, red for incorrect answers, yellow for "try again" message. Feedback must appear within 300ms of selection with smooth fade-in animation
 - **FR-029**: System MUST display the correct answer with visual representation when user exhausts both attempts with incorrect answers
 - **FR-030**: System MUST advance to the next problem automatically after correct answer or after showing correct answer for two failed attempts
-- **FR-031**: System MUST reuse existing scoring and coin reward logic from arithmetic challenges for logic puzzles to maintain consistency
+- **FR-031**: System MUST reuse existing scoring and coin reward logic from arithmetic challenges for logic puzzles to maintain consistency. Implementation must call the same calculateWaveConfig() function and GameSession.addCoins() pattern. Validation: Logic challenges at difficulty 2, wave 1 must earn identical coin amounts to arithmetic challenges at the same difficulty and wave
 
 ### Key Entities
 
@@ -162,14 +166,14 @@ As the system generates halves and doubles problems, it needs to verify that all
 
 - **Problem Generator (Logic Engine)**: Component responsible for creating valid, non-repetitive logic problems. Maintains: generation rules per difficulty level, used problem tracking, emoji pool, context scenario templates, validation rules for answer correctness.
 
-- **Multiple Choice Option**: Individual answer choice for a logic problem. Contains: display text/visual representation, value, correctness flag (boolean). 3-4 options per problem with exactly one correct.
+- **Multiple Choice Option**: Individual answer choice for a logic problem. Contains: display text/visual representation, value (number - numeric answer value for validation), correctness flag (boolean). 3-4 options per problem with exactly one correct.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can navigate from main menu to challenge selection to an active challenge in under 15 seconds with clear visual progression at each step
-- **SC-002**: 100% of generated halves/doubles problems have exactly one mathematically correct answer and 2-3 plausible incorrect options
+- **SC-001**: Users can navigate from main menu to challenge selection to an active challenge in under 15 seconds with clear visual progression at each step. Definition: Navigation is complete when the first challenge problem is fully rendered, answer buttons are interactive, and feedback text area is visible
+- **SC-002**: 100% of generated halves/doubles problems have exactly one mathematically correct answer and 2-3 plausible incorrect options. Validation includes automated verification that coin rewards match arithmetic challenges at equivalent difficulty levels
 - **SC-003**: Users can complete 10 consecutive halves/doubles problems without encountering duplicate problems or identical emoji sequences more than twice
 - **SC-004**: Children aged 6-10 can understand and correctly answer at least 60% of halves/doubles problems on first attempt (user testing validation)
 - **SC-005**: The challenge type categorization system supports adding new challenge types without modifying difficulty selection or navigation structure
