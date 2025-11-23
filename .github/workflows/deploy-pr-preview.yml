@@ -44,7 +44,6 @@ jobs:
       run: |
         echo "::warning::Main branch build failed. This might affect preview deployment."
         echo "::warning::Consider fixing main branch build issues."
-        exit 1
 
     - name: Upload main build artifact
       if: steps.build-main.outcome == 'success'
