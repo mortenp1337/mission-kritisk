@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "Refactor grade selection to difficulty levels (1-4) with challenge type categories (Arithmetic Operations, Logic Puzzles) including submenu navigation and implement new logic-based halves/doubles challenge with deterministic verification engine, visual representations using emojis, and multiple choice format"
 
+## Clarifications
+
+### Session 2025-11-23
+
+- Q: When a user answers a halves/doubles problem incorrectly, how should the system handle multiple attempts? → A: Allow 2 attempts total - show correct answer after second wrong answer
+- Q: How many halves/doubles problems should be required to complete before earning coins and progressing to tower placement? → A: 3 problems (matching existing math challenge behavior)
+- Q: Should the difficulty level labels use descriptive names or just numbers? → A: Numbers with descriptive subtitles (e.g., "Niveau 1 - Begynder", "Niveau 2 - Let Øvet")
+- Q: When displaying emoji grouping notation for large quantities (e.g., "🍎×8"), at what threshold should grouping begin? → A: 7 or more items
+- Q: Should coins earned from logic puzzles match arithmetic challenge rewards or use a different reward structure? → A: Match existing reward structure (maintain consistency across challenge types)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Select Difficulty Level (Priority: P1)
@@ -17,7 +27,7 @@ A child playing the game needs to choose their skill level before playing. Inste
 
 **Acceptance Scenarios**:
 
-1. **Given** the game main menu is displayed, **When** the user clicks "Start Spil", **Then** a difficulty selection screen appears with 4 difficulty options (labeled 1-4 in Danish)
+1. **Given** the game main menu is displayed, **When** the user clicks "Start Spil", **Then** a difficulty selection screen appears with 4 difficulty options (labeled with numbers and descriptive subtitles in Danish, e.g., "Niveau 1 - Begynder")
 2. **Given** the difficulty selection screen is displayed, **When** the user hovers over a difficulty button, **Then** the button provides visual feedback (scale/color change)
 3. **Given** the difficulty selection screen is displayed, **When** the user clicks difficulty level 2, **Then** the difficulty level is saved to the game session and the challenge type selection screen appears
 4. **Given** a difficulty level has been selected, **When** returning from gameplay, **Then** the previously selected difficulty is remembered for the session
@@ -52,12 +62,14 @@ A child wants to practice understanding the concepts of halving and doubling thr
 
 **Acceptance Scenarios**:
 
-1. **Given** the user selects "Logik Opgaver" → "Halvdele og Dobbelte", **When** a challenge problem is generated, **Then** the problem presents a scenario using emojis (e.g., "🍎🍎🍎🍎 Hvad er halvdelen?") with 3-4 multiple choice options
+1. **Given** the user selects "Logik Opgaver" → "Halvdele og Dobbelte", **When** a challenge problem is generated, **Then** the problem presents a scenario using emojis (e.g., "🍎🍎🍎🍎 Hvad er halvdelen?") with 3-4 multiple choice options and requires 3 problems to be completed before earning coins
 2. **Given** a halves problem is displayed with 4 apples, **When** the user selects the choice showing 2 apples, **Then** the answer is validated as correct and positive feedback is shown
 3. **Given** a doubles problem is displayed with 3 squares (⬜⬜⬜), **When** the user selects the choice showing 6 squares, **Then** the answer is validated as correct
 4. **Given** a real-world context problem is displayed (e.g., "En ting koster 20 kr. Hvad er halvpris?"), **When** the user selects "10 kr", **Then** the answer is validated as correct
-5. **Given** an incorrect answer is selected, **When** validation occurs, **Then** feedback indicates the answer is wrong and shows the correct answer with explanation
-6. **Given** multiple problems are presented in sequence, **When** reviewing the problems, **Then** no two consecutive problems use identical emoji sets or scenarios (non-repetitive generation)
+5. **Given** an incorrect answer is selected, **When** validation occurs and it's the first attempt, **Then** feedback indicates the answer is wrong and allows one more attempt
+6. **Given** an incorrect answer is selected twice, **When** validation occurs after the second attempt, **Then** feedback shows the correct answer with explanation and advances to next problem
+7. **Given** multiple problems are presented in sequence, **When** reviewing the problems, **Then** no two consecutive problems use identical emoji sets or scenarios (non-repetitive generation)
+8. **Given** a problem requires displaying 7 or more items, **When** the problem is rendered, **Then** grouping notation is used (e.g., "🍎×8" instead of 8 individual apple emojis)
 
 ---
 
@@ -84,8 +96,9 @@ As the system generates halves and doubles problems, it needs to verify that all
 - What happens when difficulty level 1 is selected but the requested challenge type is too advanced (e.g., division)? System should either disable unavailable challenge types in the submenu or show an appropriate message.
 - How does the system handle returning to the challenge type selection menu after starting a challenge? Should preserve difficulty selection and category state.
 - What happens if a halves problem would require decimal answers (e.g., 5 ÷ 2)? System should only generate problems with whole number answers or clearly indicate decimal expectations.
-- How does the system present multiple choice options when emoji counts become large (e.g., 20+ items)? Should use grouping notation (e.g., "🍎×8") or limit problem ranges.
-- What happens when all three answer attempts fail for a logic puzzle? Should show the correct answer with explanation and move to next problem.
+- How does the system present multiple choice options when emoji counts become large (e.g., 20+ items)? Should use grouping notation (e.g., "🍎×8") for 7 or more items or limit problem ranges.
+- What happens when both attempts fail for a logic puzzle? Should show the correct answer with explanation and move to next problem (no third attempt).
+- How are coins awarded for logic puzzles? Should match the existing reward structure used for arithmetic challenges to maintain consistency.
 
 ## Requirements *(mandatory)*
 
@@ -93,7 +106,7 @@ As the system generates halves and doubles problems, it needs to verify that all
 
 **Navigation & Structure**
 
-- **FR-001**: System MUST replace "grade selection" (Klasse 0-3) with "difficulty selection" (Niveau 1-4) using age-neutral language
+- **FR-001**: System MUST replace "grade selection" (Klasse 0-3) with "difficulty selection" (Niveau 1-4) using age-neutral language with descriptive subtitles (e.g., "Niveau 1 - Begynder", "Niveau 2 - Let Øvet", "Niveau 3 - Øvet", "Niveau 4 - Ekspert")
 - **FR-002**: System MUST display challenge type categories as primary menu options after difficulty selection
 - **FR-003**: System MUST organize challenge types into two groups: "Regnearter" (Arithmetic Operations) and "Logik Opgaver" (Logic Puzzles)
 - **FR-004**: System MUST display submenu navigation when a category group is selected, showing available challenge types within that group
@@ -116,21 +129,26 @@ As the system generates halves and doubles problems, it needs to verify that all
 - **FR-015**: System MUST present all halves/doubles problems in multiple choice format with 3-4 answer options
 - **FR-016**: System MUST generate exactly one correct answer per problem
 - **FR-017**: System MUST generate 2-3 plausible distractor answers that are mathematically related but incorrect
+- **FR-018**: System MUST require users to complete 3 halves/doubles problems before earning coins and progressing to tower placement (matching existing math challenge behavior)
+- **FR-019**: System MUST allow 2 attempts per problem - display correct answer with explanation after second incorrect attempt
+- **FR-020**: System MUST use grouping notation (e.g., "🍎×8") when displaying 7 or more items in problems or answer choices
+- **FR-021**: System MUST award coins using the same reward structure as arithmetic challenges (maintain consistency across challenge types)
 
 **Problem Generation & Verification**
 
-- **FR-018**: System MUST implement deterministic logic engine for halves/doubles that guarantees valid, solvable problems
-- **FR-019**: System MUST verify that halving operations produce whole number results (no decimals unless explicitly supported)
-- **FR-020**: System MUST verify that doubling operations stay within reasonable magnitude limits for the difficulty level
-- **FR-021**: System MUST ensure generated problems are non-repetitive within a game session (track used problems)
-- **FR-022**: System MUST vary emoji types and scenarios across consecutive problems (no more than 2 consecutive problems with same emoji)
-- **FR-023**: System MUST scale problem complexity based on selected difficulty level (1=simple quantities under 10, 4=quantities up to 50)
+- **FR-022**: System MUST implement deterministic logic engine for halves/doubles that guarantees valid, solvable problems
+- **FR-023**: System MUST verify that halving operations produce whole number results (no decimals unless explicitly supported)
+- **FR-024**: System MUST verify that doubling operations stay within reasonable magnitude limits for the difficulty level
+- **FR-025**: System MUST ensure generated problems are non-repetitive within a game session (track used problems)
+- **FR-026**: System MUST vary emoji types and scenarios across consecutive problems (no more than 2 consecutive problems with same emoji)
+- **FR-027**: System MUST scale problem complexity based on selected difficulty level (1=simple quantities under 10, 2=quantities under 20, 3=quantities under 35, 4=quantities up to 50)
 
 **User Feedback**
 
-- **FR-024**: System MUST provide immediate validation feedback when user selects an answer (correct/incorrect indication)
-- **FR-025**: System MUST display the correct answer with visual representation when user selects an incorrect answer
-- **FR-026**: System MUST advance to the next problem automatically after correct answer or after showing correct answer for incorrect attempts
+- **FR-028**: System MUST provide immediate validation feedback when user selects an answer (correct/incorrect indication)
+- **FR-029**: System MUST display the correct answer with visual representation when user exhausts both attempts with incorrect answers
+- **FR-030**: System MUST advance to the next problem automatically after correct answer or after showing correct answer for two failed attempts
+- **FR-031**: System MUST reuse existing scoring and coin reward logic from arithmetic challenges for logic puzzles to maintain consistency
 
 ### Key Entities
 
