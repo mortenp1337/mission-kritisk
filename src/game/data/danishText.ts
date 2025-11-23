@@ -6,9 +6,42 @@ export const DanishText = {
     mainTitle: 'Mission Kritisk',
     startGame: 'Start Spil',
     
-    // Grade Selection
+    // Grade Selection (DEPRECATED - replaced by difficulty selection)
     gradeSelectionTitle: 'Vælg din Klasse',
     gradeLabels: ['Klasse 0', 'Klasse 1', 'Klasse 2', 'Klasse 3'],
+    
+    // Difficulty Selection (NEW)
+    difficultySelectionTitle: 'Vælg Sværhedsgrad',
+    difficultyLabels: [
+        'Niveau 1 - Begynder',
+        'Niveau 2 - Let Øvet',
+        'Niveau 3 - Øvet',
+        'Niveau 4 - Ekspert'
+    ],
+    
+    // Category Selection (NEW)
+    categorySelectionTitle: 'Vælg Opgavetype',
+    categoryNames: {
+        math: 'Regnearter',
+        logic: 'Logik Opgaver'
+    },
+    backButton: 'Tilbage',
+    
+    // Challenge Type Menu (NEW)
+    challengeTypeMenuTitle: 'Vælg Udfordring',
+    challengeTypeNames: {
+        addition: 'Addition',
+        subtraction: 'Subtraktion',
+        multiplication: 'Multiplikation',
+        division: 'Division',
+        'halves-doubles': 'Halvdele og Dobbelte'
+    },
+    
+    // Logic Puzzles (NEW)
+    logicPuzzleQuestion: {
+        halves: 'Hvad er halvdelen?',
+        doubles: 'Hvad er det dobbelte?'
+    },
     
     // Math Challenge
     solveTheProblem: 'Løs opgaven:',
