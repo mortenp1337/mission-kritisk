@@ -6,7 +6,7 @@ test.describe('Build Verification', () => {
     await page.goto('/');
     
     // Check basic page structure
-    await expect(page).toHaveTitle(/Phaser - Template/);
+    await expect(page).toHaveTitle(/Mission Kritisk/);
     
     // Verify no console errors
     const errors: string[] = [];
