@@ -99,10 +99,10 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Update `.github/copilot-instructions.md` with preview system documentation: explain PR preview URLs, when they're available, how to access
-- [ ] T029 [US3] Add troubleshooting section to `.github/copilot-instructions.md`: common issues (404s, broken assets, deployment failures)
-- [ ] T030 [US3] Update `README.md` deployment section: document PR preview system, explain URL pattern, note single preview limitation
-- [ ] T031 [US3] Add reviewer workflow to `README.md`: how to find preview URL, what to test, how to provide feedback
+- [x] T028 [US3] Update `.github/copilot-instructions.md` with preview system documentation: explain PR preview URLs, when they're available, how to access
+- [x] T029 [US3] Add troubleshooting section to `.github/copilot-instructions.md`: common issues (404s, broken assets, deployment failures)
+- [x] T030 [US3] Update `README.md` deployment section: document PR preview system, explain URL pattern, note single preview limitation
+- [x] T031 [US3] Add reviewer workflow to `README.md`: how to find preview URL, what to test, how to provide feedback
 - [ ] T032 [US3] Test reviewer experience: create test PR, share preview URL with team member, gather feedback on accessibility
 - [ ] T033 [US3] Verify preview URL is accessible within 1 minute of workflow completion (per SC-008)
 
@@ -118,9 +118,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 4
 
-- [ ] T034 [US4] Add artifact structure logging in `.github/workflows/deploy-pr-preview.yml` deploy job: log directory tree of combined/ before upload
-- [ ] T035 [US4] Add size validation in `.github/workflows/deploy-pr-preview.yml` deploy job: check combined artifact size, warn if approaching 1GB limit
-- [ ] T036 [US4] Add deployment verification step in `.github/workflows/deploy-pr-preview.yml`: after deployment, log both root URL and preview URL
+- [x] T034 [US4] Add artifact structure logging in `.github/workflows/deploy-pr-preview.yml` deploy job: log directory tree of combined/ before upload
+- [x] T035 [US4] Add size validation in `.github/workflows/deploy-pr-preview.yml` deploy job: check combined artifact size, warn if approaching 1GB limit
+- [x] T036 [US4] Add deployment verification step in `.github/workflows/deploy-pr-preview.yml`: after deployment, log both root URL and preview URL
 - [ ] T037 [US4] Test combined deployment: create PR, wait for deployment, verify root URL serves main content
 - [ ] T038 [US4] Test combined deployment: verify preview URL serves PR content with correct asset paths
 - [ ] T039 [US4] Test that Vite's `base: './'` configuration works correctly in both root and preview contexts
@@ -137,9 +137,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 5
 
-- [ ] T040 [US5] Add `workflow_dispatch:` trigger to `.github/workflows/deploy-pr-preview.yml` (no inputs required)
-- [ ] T041 [US5] Verify branch detection logic works for workflow_dispatch: if github.ref_name == 'main', skip build-pr job
-- [ ] T042 [US5] Add usage documentation to `.github/copilot-instructions.md`: explain manual deployment process, branch selection, expected behavior
+- [x] T040 [US5] Add `workflow_dispatch:` trigger to `.github/workflows/deploy-pr-preview.yml` (no inputs required)
+- [x] T041 [US5] Verify branch detection logic works for workflow_dispatch: if github.ref_name == 'main', skip build-pr job
+- [x] T042 [US5] Add usage documentation to `.github/copilot-instructions.md`: explain manual deployment process, branch selection, expected behavior
 - [ ] T043 [US5] Test manual deployment on feature branch: trigger workflow_dispatch, select feature branch, verify preview created
 - [ ] T044 [US5] Test manual deployment on main branch: trigger workflow_dispatch, select main, verify production-only deployment (no preview)
 
@@ -151,7 +151,7 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **Purpose**: Implement robust error handling for main build failures and other edge cases
 
-- [ ] T045 Add error handling in `.github/workflows/deploy-pr-preview.yml` build-main job: continue-on-error for main build, cache last successful artifact
+- [x] T045 Add error handling in `.github/workflows/deploy-pr-preview.yml` build-main job: continue-on-error for main build, cache last successful artifact
 - [ ] T046 Add fallback logic in deploy job: if build-main failed, attempt to download cached main artifact from previous successful run
 - [ ] T047 Add warning notice in deploy job: if using cached main build, log warning with SHA and cache timestamp
 - [ ] T048 Add main build cache strategy: cache dist-main artifact on successful builds with key based on main branch SHA

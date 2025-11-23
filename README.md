@@ -8,30 +8,56 @@ This project includes automated deployment workflows and comprehensive testing w
 
 ## 🚀 Deployment & Workflows
 
-This project features automated CI/CD workflows:
+This project features automated CI/CD workflows for GitHub Pages deployment:
 
-### Main Branch Deployment
-- **Trigger**: Push to `main` branch
-- **Destination**: GitHub Pages root (`https://mortenp1337.github.io/mission-kritisk/`)
-- **Process**: 
-  1. Runs full Playwright test suite
-  2. Builds production version
-  3. Deploys to GitHub Pages root
+### Production Deployment
+- **Workflow**: `.github/workflows/deploy-main.yml`
+- **Trigger**: Push to `main` branch or manual workflow dispatch
+- **Destination**: GitHub Pages root
+- **URL**: `https://mortenp1337.github.io/mission-kritisk/`
+- **Content**: Production build only (no preview artifacts)
+- **Concurrency**: Queued (ensures completion)
 
 ### PR Preview Deployment
-- **Trigger**: Opening/updating Pull Requests
-- **Destination**: GitHub Pages preview folder (`https://mortenp1337.github.io/mission-kritisk/preview/pr-{number}/`)
-- **Features**:
-  1. Runs full test suite
-  2. Creates isolated preview environment
-  3. Posts preview URL as PR comment
-  4. Auto-updates on new commits
-  5. Cleans up on PR closure
+- **Workflow**: `.github/workflows/deploy-pr-preview.yml`
+- **Trigger**: Pull Request opened/updated/reopened or manual workflow dispatch
+- **Destination**: GitHub Pages with preview subdirectory
+- **URLs**:
+  - **Production**: `https://mortenp1337.github.io/mission-kritisk/` (main branch content)
+  - **Preview**: `https://mortenp1337.github.io/mission-kritisk/preview/` (PR branch content)
+- **Concurrency**: Cancel-in-progress (only latest preview active)
+- **Important**: Only one preview can exist at a time - each deployment replaces the entire site
+
+#### How PR Previews Work
+
+1. **Open a PR**: Workflow automatically triggers on PR creation
+2. **Wait for Deployment**: Usually completes within 3-5 minutes
+3. **Access Preview**: Visit `https://mortenp1337.github.io/mission-kritisk/preview/`
+4. **Test Changes**: Both production (root) and preview (subdirectory) are accessible
+5. **Auto-Update**: Push new commits → automatic redeployment
+6. **After Merge**: Main deployment removes preview directory
+
+#### Manual Deployments
+
+You can manually trigger preview deployments:
+1. Go to **Actions** → **Deploy PR Preview** workflow
+2. Click **Run workflow**
+3. Select your branch from the dropdown
+4. Workflow automatically detects deployment type:
+   - `main` branch → production-only deployment
+   - Other branches → combined deployment (production + preview)
+
+#### For Reviewers
+
+- Check PR for "deploy-pr-preview" workflow status (✅ = ready)
+- Visit preview URL to test changes without local setup
+- Verify game functionality, UI elements, and Danish text
+- No need to check out branch locally for basic testing
 
 ### Continuous Integration
+- **Workflow**: `.github/workflows/ci.yml`
 - **Trigger**: All pushes and PRs
-- **Tests**: Matrix testing on Node.js 18 & 20
-- **Coverage**: Playwright tests across Chrome, Firefox, Safari
+- **Validation**: Build verification and output checks
 
 ## 🧪 Testing
 
