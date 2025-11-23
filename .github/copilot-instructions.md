@@ -106,9 +106,81 @@ this.input.once('pointerdown', () => {
 - Progress tracking in Preloader using LoaderPlugin events
 - Background shared across scenes using same key
 
+## Deployment System
+
+### Overview
+The project uses GitHub Actions for automated deployment to GitHub Pages with support for PR previews.
+
+### Deployment Types
+
+**Production Deployment** (`.github/workflows/deploy-main.yml`):
+- **Triggers**: Push to `main` branch, manual workflow dispatch
+- **Content**: Production build only (no preview)
+- **URL**: `https://mortenp1337.github.io/mission-kritisk/`
+- **Concurrency**: Queued (ensures completion, no cancellation)
+
+**PR Preview Deployment** (`.github/workflows/deploy-pr-preview.yml`):
+- **Triggers**: PR opened/updated/reopened, manual workflow dispatch
+- **Content**: Production at root + PR preview in `/preview/` subdirectory
+- **URLs**:
+  - Production: `https://mortenp1337.github.io/mission-kritisk/`
+  - Preview: `https://mortenp1337.github.io/mission-kritisk/preview/`
+- **Concurrency**: Cancel-in-progress (only latest preview matters)
+
+### Key Behaviors
+
+- **Single Preview**: Only one preview can exist at a time. Each deployment replaces the entire GitHub Pages site.
+- **Branch Detection**: Workflows automatically detect branch type:
+  - `main` branch → production-only deployment
+  - Other branches → combined deployment (production + preview)
+- **Preview Path**: Always `/preview/` - no PR number or branch name in path
+- **Automatic Updates**: PR previews update automatically when new commits are pushed
+
+### For PR Authors
+
+1. **Opening a PR**: Workflow automatically deploys within 3-5 minutes
+2. **Preview URL**: Visit `https://mortenp1337.github.io/mission-kritisk/preview/`
+3. **Updates**: Push new commits → automatic redeployment (cancels in-progress)
+4. **After Merge**: Main deployment removes preview directory automatically
+
+### For Reviewers
+
+1. **Access Preview**: Check PR for "deploy-pr-preview" workflow status
+2. **Test URL**: `https://mortenp1337.github.io/mission-kritisk/preview/`
+3. **No Local Setup**: Test changes directly in browser without checkout
+4. **Validation**: Verify game functionality, UI, and Danish text correctness
+
+### Manual Deployments
+
+Use workflow_dispatch for ad-hoc deployments:
+1. Go to Actions → deploy-pr-preview workflow
+2. Click "Run workflow"
+3. Select branch (main = production, other = preview)
+4. Workflow auto-detects deployment type
+
+### Troubleshooting
+
+**Preview 404**:
+- Wait for workflow completion (~5 minutes)
+- Check if another PR deployed after yours (only one preview active)
+- Trigger manual deployment if needed
+
+**Deployment Failed**:
+- Check workflow logs in Actions tab
+- Verify build passes locally: `npm run build-nolog`
+- Fix errors and push new commit (automatic retry)
+
+**Using Cached Main Build Warning**:
+- Main branch build failed but PR preview continued
+- Preview uses previous successful main build
+- Not an error - your PR changes are still valid
+- Check main branch status if concerned
+
 ## Key Files for Reference
 - `src/game/main.ts` - Game configuration and scene registration
 - `src/game/scenes/Boot.ts` - Minimal asset loading pattern
 - `src/game/scenes/Preloader.ts` - Progress bar implementation
 - `vite/config.prod.mjs` - Production build optimizations
 - `tsconfig.json` - Phaser-compatible TypeScript settings
+- `.github/workflows/deploy-main.yml` - Production deployment workflow
+- `.github/workflows/deploy-pr-preview.yml` - PR preview deployment workflow

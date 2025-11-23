@@ -31,10 +31,10 @@ jobs:
       run: |
         ls -la dist/
         echo "Build completed successfully!"
-        
+
         # Verify required files exist
         [ -f dist/index.html ] || { echo "Missing index.html"; exit 1; }
         [ -f dist/style.css ] || { echo "Missing style.css"; exit 1; }
         [ -d dist/assets ] || { echo "Missing assets directory"; exit 1; }
-        
+
         echo "All required files present in build output."
