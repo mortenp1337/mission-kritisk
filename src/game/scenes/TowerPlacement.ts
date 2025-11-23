@@ -134,6 +134,13 @@ export class TowerPlacement extends Scene {
             const gridPos = this.grid.screenToGrid(pointer.x, pointer.y);
             this.updateHighlight(gridPos);
         });
+        
+        // ESC key to cancel placement mode
+        this.input.keyboard?.on('keydown-ESC', () => {
+            if (this.placementMode) {
+                this.exitPlacementMode();
+            }
+        });
     }
     
     private enterPlacementMode(): void {
@@ -145,7 +152,7 @@ export class TowerPlacement extends Scene {
         }
         
         this.placementMode = true;
-        this.feedbackText.setText('Vælg en celle på griddet'); // Could add to DanishText
+        this.feedbackText.setText(DanishText.selectPlacement);
     }
     
     private updateHighlight(gridPos: { row: number; col: number } | null): void {
@@ -196,8 +203,9 @@ export class TowerPlacement extends Scene {
             level: 1
         });
         
-        // Update UI
+        // Update UI and show success feedback
         this.updateCoinDisplay();
+        this.showFeedback(DanishText.towerPlaced);
         this.exitPlacementMode();
     }
     

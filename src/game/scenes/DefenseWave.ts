@@ -127,13 +127,9 @@ export class DefenseWave extends Scene {
     }
     
     private onWaveComplete(): void {
-        // Award bonus coins
-        const waveConfig = this.waveManager.getWaveConfig();
-        this.session.addCoins(waveConfig.rewards.bonusCoins);
-        
-        // Show completion message
+        // Show completion message (no coins awarded for wave completion)
         const message = this.add.text(512, 384, 
-            DanishText.waveComplete + '\n' + DanishText.bonusCoins(waveConfig.rewards.bonusCoins), {
+            DanishText.waveComplete, {
             fontFamily: 'Arial Black',
             fontSize: 36,
             color: '#00ff00',
