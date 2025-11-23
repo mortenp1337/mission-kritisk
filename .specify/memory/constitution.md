@@ -63,22 +63,48 @@ Deployment Note: First constitution ratification for Mission Kritisk game projec
 - New features CANNOT be merged without passing test coverage
 - Test files organized in `tests/` directory with descriptive naming (e.g., `game.spec.ts`, `build.spec.ts`)
 
+**Current Implementation Status**:
+- ✅ Playwright infrastructure installed and configured
+- ✅ Test commands available and functional
+- ✅ Test files organized in `tests/` directory
+- ⚠️ CI integration: Tests currently manual; planned for automated pre-merge gate
+- ⚠️ Browser matrix: Currently manual testing; planned for CI matrix execution
+
 **Rationale**: Automated testing ensures game stability, prevents regressions, and validates functionality across different environments and browsers. This is critical for a web-based game deployed to multiple platforms.
+
+**CI Integration Roadmap**:
+1. Add Playwright test execution to CI workflow
+2. Configure browser matrix (Chromium, Firefox, WebKit)
+3. Generate test reports and artifacts for failed tests
+4. Block merge on test failures
 
 ### IV. CI/CD Pipeline
 
 **Description**: All code changes MUST pass through automated CI/CD workflows before deployment.
 
 **Rules**:
-- **CI Workflow**: Runs on all pushes/PRs, tests on Node.js 18 & 20, validates build integrity
-- **Main Deployment**: Automatic deployment to GitHub Pages root on `main` branch push after full test suite passes
-- **PR Previews**: Isolated preview environments at `/preview/pr-{number}/` for all PRs with automatic updates
-- **Preview Cleanup**: Automatic removal of preview directories on PR closure
+- **CI Workflow** (`.github/workflows/ci.yml`): Runs on all pushes/PRs to main and develop branches, validates build integrity with Node.js 18
+- **Main Deployment** (`.github/workflows/deploy-main.yml`): Automatic deployment to GitHub Pages root on `main` branch push; validates production build doesn't contain preview artifacts
+- **PR Previews** (`.github/workflows/deploy-pr-preview.yml`): Builds both main branch and PR branch; deploys to `/preview/` subdirectory for PR validation; concurrent previews disabled (only latest active)
 - No manual deployments allowed—all deployments MUST go through GitHub Actions
-- All workflows MUST pass full Playwright test suite before deployment
-- GitHub Pages MUST be configured with `gh-pages` branch and root folder
+- GitHub Actions permissions: `contents: read`, `pages: write`, `id-token: write` (required for GitHub Pages deployment)
+- Build validation MUST verify: `dist/index.html` exists, `dist/style.css` exists, `dist/assets` directory exists
+
+**Current Implementation Status**:
+- ✅ CI workflow validates builds with Node.js 18
+- ✅ Main branch deploys to root with production-only validation
+- ✅ PR previews deploy to `/preview/` with automatic overwrite (only one preview at a time)
+- ⚠️ Matrix testing on multiple Node versions: Planned (currently Node.js 18 only)
+- ⚠️ Playwright test enforcement: Planned (currently build-only validation)
+- ⚠️ Preview cleanup on PR close: Planned (currently requires manual cleanup)
 
 **Rationale**: Automated pipelines ensure code quality, enable safe parallel development through PR previews, and maintain deployment consistency. Preview environments enable stakeholder review before merging.
+
+**Future Enhancements** (post-MVP):
+1. Add Node.js 20 to CI matrix for broader compatibility testing
+2. Integrate Playwright E2E tests into CI workflow pre-merge gate
+3. Implement automatic preview cleanup on PR closure using workflow_dispatch or scheduled cleanup job
+4. Add test result reporting and coverage tracking to CI workflow
 
 ### V. Type Safety & Build Optimization
 
@@ -114,23 +140,75 @@ Deployment Note: First constitution ratification for Mission Kritisk game projec
 
 ## Quality Gates
 
-**Pre-Merge Requirements**:
-1. All Playwright tests pass on PR preview build
-2. Build succeeds for both development and production configurations
-3. No TypeScript compilation errors
-4. Code follows bilingual implementation rules (English code, Danish UI text)
-5. Scene architecture patterns followed correctly
+**Pre-Merge Requirements** (Current):
+1. ✅ Build succeeds for both development and production configurations
+2. ✅ No TypeScript compilation errors
+3. ✅ Code follows bilingual implementation rules (English code, Danish UI text)
+4. ✅ Scene architecture patterns followed correctly
+5. ⚠️ All Playwright tests pass on PR preview build (manual validation required)
 
-**Deployment Gates**:
-1. Full test suite passes on target environment (main or preview)
-2. Build artifacts generated successfully
-3. GitHub Actions workflow completes without errors
+**Pre-Merge Requirements** (Planned):
+1. 🔜 Automated Playwright test execution blocks merge on failure
+2. 🔜 Multiple Node.js versions tested (18, 20)
+3. 🔜 Browser matrix validation (Chromium, Firefox, WebKit)
 
-**Review Process**:
-- PRs MUST have passing CI checks before review
-- Preview deployment MUST be functional for manual QA
-- Bilingual compliance MUST be verified (English code, Danish user text)
-- Scene lifecycle patterns MUST be verified for new scenes
+**Deployment Gates** (Current):
+1. ✅ Build artifacts generated successfully
+2. ✅ GitHub Actions workflow completes without errors
+3. ✅ Production build validated (no preview artifacts in main deployment)
+
+**Deployment Gates** (Planned):
+1. 🔜 Full test suite passes on target environment before deployment
+2. 🔜 Automated preview cleanup on PR closure
+
+**Review Process** (Current):
+- ✅ PRs MUST have passing CI checks (build validation) before review
+- ✅ Preview deployment MUST be functional for manual QA
+- ✅ Bilingual compliance MUST be verified (English code, Danish user text)
+- ✅ Scene lifecycle patterns MUST be verified for new scenes
+
+**Review Process** (Planned):
+- 🔜 Automated test reports attached to PR reviews
+- 🔜 Test coverage metrics displayed in PR comments
+
+## Implementation Status
+
+### Core Principles Compliance
+
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| **I. Scene-Based Architecture** | ✅ Implemented | All scenes follow lifecycle pattern; transitions use `scene.start()` |
+| **II. Bilingual Implementation** | ✅ Implemented | English code, Danish user text enforced via code review |
+| **III. Test-Driven Development** | 🟡 Partial | Playwright framework ready; CI integration planned |
+| **IV. CI/CD Pipeline** | 🟡 Partial | Build validation active; test gates planned |
+| **V. Type Safety & Build Optimization** | ✅ Implemented | TypeScript strict mode, Vite optimization active |
+
+### Technology Stack Adoption
+
+| Component | Requirement | Current | Status |
+|-----------|-------------|---------|--------|
+| TypeScript | 5.7+ | 5.7.2 | ✅ |
+| Phaser | 3.90+ | 3.90.0 | ✅ |
+| Vite | 6+ | 6.3.1 | ✅ |
+| Playwright | 1.56+ | Latest | ✅ |
+| Node.js CI | 18 & 20 | 18 only | 🟡 |
+| Browser Matrix | Chrome, Firefox, Safari | Manual only | 🟡 |
+
+### CI/CD Workflow Status
+
+**Implemented** ✅:
+- Build validation on all pushes and PRs
+- Production deployment to GitHub Pages root (main branch)
+- PR preview deployment to `/preview/` subdirectory
+- Build output validation (index.html, style.css, assets/)
+- Concurrent preview management (only one active)
+
+**Planned** 🔜:
+- Playwright test execution in CI pre-merge gate
+- Node.js 20 matrix testing
+- Browser matrix testing (Chromium, Firefox, WebKit)
+- Automatic preview cleanup on PR closure
+- Test result reporting and artifacts
 
 ## Governance
 
@@ -156,4 +234,13 @@ This constitution supersedes all other development practices and serves as the a
 - Copilot instructions provide concrete examples of scene structures, asset loading, and bilingual text formatting
 - When in doubt about implementation details, reference copilot-instructions.md first, then this constitution for governance rules
 
-**Version**: 1.0.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-22
+**Version**: 1.1.0 | **Ratified**: 2025-11-22 | **Last Amended**: 2025-11-23
+
+**Amendment 1.1.0** (2025-11-23):
+- Corrected CI/CD Pipeline section: Updated preview path from `/preview/pr-{number}/` to actual `/preview/`
+- Clarified test integration status: Marked as planned (not yet enforced in CI)
+- Clarified matrix testing status: Currently Node.js 18 only (20 planned)
+- Added Implementation Status section documenting current vs. planned features
+- Added workflow file references (.github/workflows/*)
+- Removed inaccurate references to preview cleanup automation
+- Added CI/CD Workflow Status table for clarity

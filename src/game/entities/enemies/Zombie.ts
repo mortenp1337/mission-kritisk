@@ -74,7 +74,9 @@ export class Zombie implements IZombie {
             this.pathProgress = this.currentWaypointIndex / this.path.length;
         } else {
             // Move toward waypoint
-            const moveDistance = (this.speed * delta) / 1000; // Convert delta to seconds
+            // Apply scene's timeScale to allow dynamic speed adjustments
+            const scaledDelta = delta * this.scene.time.timeScale;
+            const moveDistance = (this.speed * scaledDelta) / 1000; // Convert delta to seconds
             const moveX = (dx / distance) * moveDistance;
             const moveY = (dy / distance) * moveDistance;
             

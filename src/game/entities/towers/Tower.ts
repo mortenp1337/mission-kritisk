@@ -90,7 +90,9 @@ export abstract class Tower {
     }
     
     protected canFire(time: number): boolean {
-        return time >= this.lastFireTime + this.fireRate;
+        // Scale fire rate by timeScale so towers shoot faster/slower with game speed
+        const scaledFireRate = this.fireRate / this.scene.time.timeScale;
+        return time >= this.lastFireTime + scaledFireRate;
     }
     
     protected abstract shoot(target: Zombie): void;
