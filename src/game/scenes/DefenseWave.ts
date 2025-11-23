@@ -187,4 +187,10 @@ export class DefenseWave extends Scene {
             this.baseHealthText.setColor('#ff0000');
         }
     }
+    
+    shutdown(): void {
+        if (this.speedControl) {
+            this.speedControl.destroy();
+        }
+    }
 }

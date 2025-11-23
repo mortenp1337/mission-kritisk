@@ -5,7 +5,7 @@
 
 ## Summary
 
-Add player-controlled game speed adjustment during waves with +/- buttons. The system will use Phaser's `time.timeScale` to globally scale all physics, animations, and timers. Speed will range from 0.5x to 2.0x with 0.5x increments, reset to 1.0x between waves, and positioned in the UI without overlapping the 8x5 tower grid or existing UI elements.
+Add player-controlled game speed adjustment during waves with +/- buttons. The system will use Phaser's `time.timeScale` to globally scale all physics, animations, and timers. Speed will range from 0.5x to 5.0x with 0.5x increments, reset to 1.0x between waves, and positioned in the UI without overlapping the 8x5 tower grid or existing UI elements.
 
 ## Technical Context
 
@@ -134,7 +134,7 @@ src/game/
 ### Phase 5: Testing and Validation
 
 #### 5.1 Unit testing
-- Test GameSession speed boundaries (0.5x, 1.0x, 2.0x)
+- Test GameSession speed boundaries (0.5x, 1.0x, 2.0x, 5.0x)
 - Test speed increment/decrement logic
 - Test speed reset on wave transitions
 

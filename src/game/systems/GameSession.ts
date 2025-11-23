@@ -1,5 +1,6 @@
 // GameSession singleton - persists game state across scenes
 import { GameSession as IGameSession, PlacedTowerData } from '../types/GameTypes';
+import { SPEED_CONTROL } from '../constants/speedControl';
 
 export class GameSession implements IGameSession {
     private static instance: GameSession;
@@ -91,9 +92,7 @@ export class GameSession implements IGameSession {
     }
     
     setGameSpeed(multiplier: number): void {
-        const MIN_SPEED = 0.5;
-        const MAX_SPEED = 5.0;  // Increased max speed to 5x
-        this.gameSpeed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, multiplier));
+        this.gameSpeed = Math.max(SPEED_CONTROL.MIN_SPEED, Math.min(SPEED_CONTROL.MAX_SPEED, multiplier));
     }
     
     resetGameSpeed(): void {
