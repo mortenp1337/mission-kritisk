@@ -9,12 +9,16 @@ export class LogicProblemGenerator {
     private usedProblems: Set<string>;
     private lastEmojiUsed: string[];  // Track last 2 emoji characters
     private problemCounter: number;
+    private problemIdCounter: number;  // Robust ID generation counter
     private realWorldScenarios: RealWorldScenario[];
+    private readonly DISTRACTOR_COUNT_MIN = 2;
+    private readonly DISTRACTOR_COUNT_MAX = 3;
     
     constructor() {
         this.usedProblems = new Set();
         this.lastEmojiUsed = [];
         this.problemCounter = 0;
+        this.problemIdCounter = 0;
         this.initializeScenarios();
     }
     
@@ -31,13 +35,29 @@ export class LogicProblemGenerator {
     }
     
     /**
+     * Generate unique problem ID
+     */
+    private generateProblemId(): string {
+        this.problemIdCounter++;
+        return `logic_${this.problemIdCounter}_${Date.now()}`;
+    }
+    
+    /**
+     * Get distractor count (2-3 based on random selection)
+     */
+    private getDistractorCount(): number {
+        return Math.random() > 0.5 ? this.DISTRACTOR_COUNT_MAX : this.DISTRACTOR_COUNT_MIN;
+    }
+    
+    /**
      * Generate a logic problem for halves or doubles
      */
     generate(difficulty: number, problemType: ProblemType): LogicProblem {
         this.problemCounter++;
         
-        // Enforce 30% real-world context: every 3rd or 4th problem
-        const useRealWorld = (this.problemCounter % 3 === 0 || this.problemCounter % 4 === 0);
+        // Enforce 30% real-world context: use modulo 10 for accurate percentage
+        // This will give real-world context on problems 1, 4, 7, 10, 13, etc. (~30%)
+        const useRealWorld = (this.problemCounter % 10 <= 2);
         
         let attempts = 0;
         let problem: LogicProblem | null = null;
@@ -79,8 +99,7 @@ export class LogicProblemGenerator {
         // Generate options
         const options = this.generateOptions(correctAnswer, emojiSet, problemType);
         
-        const id = `logic_${Date.now()}_${Math.random()}`;
-        return new LogicProblem(id, questionText, problemType, startValue, correctAnswer, options, emojiSet);
+        return new LogicProblem(this.generateProblemId(), questionText, problemType, startValue, correctAnswer, options, emojiSet);
     }
     
     /**
@@ -108,8 +127,7 @@ export class LogicProblemGenerator {
         // Generate options without emoji (just numeric values for prices/quantities)
         const options = this.generateOptionsWithoutEmoji(correctAnswer, problemType);
         
-        const id = `logic_${Date.now()}_${Math.random()}`;
-        return new LogicProblem(id, questionText, problemType, startValue, correctAnswer, options, emojiSet, scenario.category);
+        return new LogicProblem(this.generateProblemId(), questionText, problemType, startValue, correctAnswer, options, emojiSet, scenario.category);
     }
     
     /**
@@ -197,7 +215,7 @@ export class LogicProblemGenerator {
         usedValues.add(correctAnswer);
         
         // Generate 2-3 distractors (FR-017)
-        const distractorCount = Math.random() > 0.5 ? 3 : 2;
+        const distractorCount = this.getDistractorCount();
         let distractorsAdded = 0;
         
         while (distractorsAdded < distractorCount && options.length < 4) {
@@ -236,7 +254,7 @@ export class LogicProblemGenerator {
         usedValues.add(correctAnswer);
         
         // Generate 2-3 distractors
-        const distractorCount = Math.random() > 0.5 ? 3 : 2;
+        const distractorCount = this.getDistractorCount();
         let distractorsAdded = 0;
         
         while (distractorsAdded < distractorCount && options.length < 4) {
