@@ -1,0 +1,116 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump-type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      update-package-json:
+        description: 'Update package.json and commit'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout main branch
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0  # Full history for git describe
+
+    - name: Extract current version
+      id: current
+      run: |
+        CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        echo "Current version: $CURRENT_VERSION"
+
+    - name: Calculate new version
+      id: new-version
+      run: |
+        CURRENT=${{ steps.current.outputs.version }}
+        BUMP_TYPE=${{ github.event.inputs.bump-type }}
+        
+        IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+        
+        case $BUMP_TYPE in
+          major)
+            NEW_MAJOR=$((MAJOR + 1))
+            NEW_VERSION="$NEW_MAJOR.0.0"
+            ;;
+          minor)
+            NEW_MINOR=$((MINOR + 1))
+            NEW_VERSION="$MAJOR.$NEW_MINOR.0"
+            ;;
+          patch)
+            NEW_PATCH=$((PATCH + 1))
+            NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
+            ;;
+          *)
+            echo "::error::Invalid bump type: $BUMP_TYPE"
+            exit 1
+            ;;
+        esac
+        
+        echo "new-version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        echo "New version: $NEW_VERSION"
+
+    - name: Create version tag
+      id: tag
+      run: |
+        NEW_TAG="v${{ steps.new-version.outputs.new-version }}"
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git tag -a "$NEW_TAG" -m "Release ${{ steps.new-version.outputs.new-version }}"
+        echo "tag=$NEW_TAG" >> $GITHUB_OUTPUT
+        echo "::notice::Created tag: $NEW_TAG"
+
+    - name: Push tag
+      run: |
+        git push origin ${{ steps.tag.outputs.tag }}
+        echo "::notice::Pushed tag to origin"
+
+    - name: Update package.json (optional)
+      if: github.event.inputs.update-package-json == 'true'
+      run: |
+        npm version ${{ steps.new-version.outputs.new-version }} --no-git-tag-version --allow-same-version
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add package.json package-lock.json
+        git commit -m "chore: bump version to ${{ steps.new-version.outputs.new-version }}" || echo "No changes to commit"
+        git push origin main
+        echo "::notice::Updated package.json and pushed to main"
+
+    - name: Create release summary
+      run: |
+        echo "## Version Bump Successful ✅" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Bump Type:** ${{ github.event.inputs.bump-type }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Previous Version:** ${{ steps.current.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**New Version:** ${{ steps.new-version.outputs.new-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Git Tag:** ${{ steps.tag.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Updated package.json:** ${{ github.event.inputs.update-package-json }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "1. Next deployment to main will use version ${{ steps.new-version.outputs.new-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "2. Review the new build-info.json in the deployed site" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ github.event.inputs.update-package-json }}" == "true" ]; then
+          echo "3. package.json has been updated and committed to main" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "3. Optional: Run this workflow again with 'update-package-json' checked to sync package.json" >> $GITHUB_STEP_SUMMARY
+        fi
