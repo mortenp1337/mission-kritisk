@@ -3,6 +3,9 @@ import { GameOver } from './scenes/GameOver';
 import { Game as MainGame } from './scenes/Game';
 import { MainMenu } from './scenes/MainMenu';
 import { GradeSelection } from './scenes/GradeSelection';
+import { DifficultySelection } from './scenes/DifficultySelection';
+import { CategorySelection } from './scenes/CategorySelection';
+import { ChallengeTypeMenu } from './scenes/ChallengeTypeMenu';
 import { MathChallenge } from './scenes/MathChallenge';
 import { TowerPlacement } from './scenes/TowerPlacement';
 import { DefenseWave } from './scenes/DefenseWave';
@@ -21,6 +24,9 @@ const config: Phaser.Types.Core.GameConfig = {
         Boot,
         Preloader,
         MainMenu,
+        DifficultySelection,
+        CategorySelection,
+        ChallengeTypeMenu,
         GradeSelection,
         MathChallenge,
         TowerPlacement,

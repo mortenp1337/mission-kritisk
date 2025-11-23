@@ -101,7 +101,9 @@ export class MathChallenge extends Scene {
         }
         
         this.problemIndex++;
-        this.currentProblem = this.generator.generate(this.session.grade, this.session.currentWave);
+        // Use difficulty from session (maps to grade via difficulty - 1)
+        const grade = this.session.difficulty - 1;
+        this.currentProblem = this.generator.generate(grade, this.session.currentWave);
         
         this.updateUI();
         this.createAnswerButtons();
