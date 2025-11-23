@@ -12,9 +12,9 @@
 
 **Purpose**: Verify project environment and branch setup
 
-- [ ] T001 Verify Node.js 18+ and all dependencies installed via `npm install`
-- [ ] T002 [P] Run existing tests to ensure baseline functionality via `npm run test`
-- [ ] T003 [P] Verify game runs in dev mode via `npm run dev` at localhost:8080
+- [x] T001 Verify Node.js 18+ and all dependencies installed via `npm install`
+- [x] T002 [P] Run existing tests to ensure baseline functionality via `npm run test`
+- [x] T003 [P] Verify game runs in dev mode via `npm run dev` at localhost:8080
 
 **Checkpoint**: Development environment ready ✅
 
@@ -24,9 +24,9 @@
 
 **Purpose**: Create shared configuration infrastructure needed by all user stories
 
-- [ ] T004 Create `src/game/data/gameplayConfig.ts` with GameplayConfig interface and GAMEPLAY_CONFIG constant (default multipliers: 1.5)
-- [ ] T005 [P] Add helper functions `getAdjustedSpeed()` and `getAdjustedFireRate()` to gameplayConfig.ts
-- [ ] T006 [P] Add Danish feedback text constants to `src/game/data/danishText.ts`: "Vælg placering for tårn", "Ikke nok mønter", "Celle optaget", "Kan ikke placere på stien", "Tårn placeret!"
+- [x] T004 Create `src/game/data/gameplayConfig.ts` with GameplayConfig interface and GAMEPLAY_CONFIG constant (default multipliers: 1.5)
+- [x] T005 [P] Add helper functions `getAdjustedSpeed()` and `getAdjustedFireRate()` to gameplayConfig.ts
+- [x] T006 [P] Add Danish feedback text constants to `src/game/data/danishText.ts`: "Vælg placering for tårn", "Ikke nok mønter", "Celle optaget", "Kan ikke placere på stien", "Tårn placeret!"
 
 **Checkpoint**: Configuration foundation ready - user stories can proceed in parallel ✅
 
@@ -54,16 +54,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Add PlacementState fields to TowerPlacement scene in `src/game/scenes/TowerPlacement.ts`: `placementMode: boolean`, `selectedTowerType: TowerType`, `highlightedCell: Phaser.GameObjects.Rectangle | null`
-- [ ] T015 [US1] Create `enterPlacementMode(towerType: TowerType): void` method in TowerPlacement.ts with coin validation
-- [ ] T016 [US1] Create `exitPlacementMode(cancelled: boolean): void` method in TowerPlacement.ts
-- [ ] T017 [US1] Create `highlightCell(gridPos: GridPosition): void` method in TowerPlacement.ts with green/red color coding
-- [ ] T018 [US1] Create `attemptPlacement(gridPos: GridPosition): boolean` method in TowerPlacement.ts with full validation
-- [ ] T019 [US1] Add interactive grid zone with `pointermove` handler in TowerPlacement.create() method
-- [ ] T020 [US1] Add grid zone `pointerdown` handler for placement confirmation in TowerPlacement.create()
-- [ ] T021 [US1] Modify buy button click handler to call `enterPlacementMode('basic')` instead of immediate tower spawn
-- [ ] T022 [US1] Add ESC key listener in TowerPlacement.create() to call `exitPlacementMode(true)`
-- [ ] T023 [US1] Update feedback text display logic to show placement instructions and errors
+- [x] T014 [US1] Add PlacementState fields to TowerPlacement scene in `src/game/scenes/TowerPlacement.ts`: `placementMode: boolean`, `selectedTowerType: TowerType`, `highlightedCell: Phaser.GameObjects.Rectangle | null` (already existed)
+- [x] T015 [US1] Create `enterPlacementMode(towerType: TowerType): void` method in TowerPlacement.ts with coin validation (already existed)
+- [x] T016 [US1] Create `exitPlacementMode(cancelled: boolean): void` method in TowerPlacement.ts (already existed)
+- [x] T017 [US1] Create `highlightCell(gridPos: GridPosition): void` method in TowerPlacement.ts with green/red color coding (already existed as updateHighlight)
+- [x] T018 [US1] Create `attemptPlacement(gridPos: GridPosition): boolean` method in TowerPlacement.ts with full validation (already existed as tryPlaceTower)
+- [x] T019 [US1] Add interactive grid zone with `pointermove` handler in TowerPlacement.create() method (already existed)
+- [x] T020 [US1] Add grid zone `pointerdown` handler for placement confirmation in TowerPlacement.create() (already existed)
+- [x] T021 [US1] Modify buy button click handler to call `enterPlacementMode('basic')` instead of immediate tower spawn (already existed)
+- [x] T022 [US1] Add ESC key listener in TowerPlacement.create() to call `exitPlacementMode(true)` (added)
+- [x] T023 [US1] Update feedback text display logic to show placement instructions and errors (updated with DanishText)
 
 **Run tests**: `npm run test` - All User Story 1 tests should PASS ✅
 
@@ -90,12 +90,12 @@
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Search `src/game/scenes/DefenseWave.ts` for `addCoins` calls with grep/manual inspection
-- [ ] T029 [US2] Remove any wave completion coin award logic from DefenseWave scene (if found in T028)
-- [ ] T030 [US2] Remove wave completion coin feedback messages from DefenseWave scene (if any exist)
-- [ ] T031 [US2] Verify `src/game/scenes/MathChallenge.ts` awards coins only in `checkAnswer()` for correct answers (should already be correct)
-- [ ] T032 [US2] Verify coin reward calculation uses `5 + (grade * 5)` formula in MathChallenge.ts (should already be correct)
-- [ ] T033 [US2] Run comprehensive grep search: `grep -r "addCoins" src/game/scenes/` to ensure no other coin award locations exist
+- [x] T028 [US2] Search `src/game/scenes/DefenseWave.ts` for `addCoins` calls with grep/manual inspection (found on line 132)
+- [x] T029 [US2] Remove any wave completion coin award logic from DefenseWave scene (if found in T028) (removed)
+- [x] T030 [US2] Remove wave completion coin feedback messages from DefenseWave scene (if any exist) (removed bonus coins message)
+- [x] T031 [US2] Verify `src/game/scenes/MathChallenge.ts` awards coins only in `checkAnswer()` for correct answers (should already be correct) (verified - only awards in isCorrect block)
+- [x] T032 [US2] Verify coin reward calculation uses `5 + (grade * 5)` formula in MathChallenge.ts (should already be correct) (verified - uses waveConfig.rewards.coinPerProblem)
+- [x] T033 [US2] Run comprehensive grep search: `grep -r "addCoins" src/game/scenes/` to ensure no other coin award locations exist (verified - only MathChallenge.ts remains)
 
 **Run tests**: `npm run test` - All User Story 2 tests should PASS ✅
 
@@ -122,11 +122,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T038 [P] [US3] Import `getAdjustedSpeed` in `src/game/entities/enemies/Zombie.ts`
-- [ ] T039 [US3] Modify Zombie constructor to apply speed multiplier: `this.speed = getAdjustedSpeed(stats.speed)`
-- [ ] T040 [P] [US3] Import `getAdjustedFireRate` in `src/game/entities/towers/Tower.ts`
-- [ ] T041 [US3] Modify Tower fire timer creation to use adjusted fire rate: `delay = 1000 / getAdjustedFireRate(baseFireRate)`
-- [ ] T042 [US3] Verify BasicTower inherits adjusted fire rate from parent Tower class (no changes needed to BasicTower.ts)
+- [x] T038 [P] [US3] Import `getAdjustedSpeed` in `src/game/entities/enemies/Zombie.ts` (done)
+- [x] T039 [US3] Modify Zombie constructor to apply speed multiplier: `this.speed = getAdjustedSpeed(stats.speed)` (done)
+- [x] T040 [P] [US3] Import `getAdjustedFireRate` in `src/game/entities/towers/Tower.ts` (done)
+- [x] T041 [US3] Modify Tower fire timer creation to use adjusted fire rate: `delay = 1000 / getAdjustedFireRate(baseFireRate)` (done - applied in constructor)
+- [x] T042 [US3] Verify BasicTower inherits adjusted fire rate from parent Tower class (no changes needed to BasicTower.ts) (verified)
 - [ ] T043 [US3] Manual test: Play wave and verify zombies move noticeably faster
 - [ ] T044 [US3] Manual test: Observe tower firing and verify increased shot frequency
 
