@@ -14,15 +14,6 @@
 ## Requirement Completeness
 
 - [x] No [NEEDS CLARIFICATION] markers remain
-- [x] Requirements are testable and unambiguous
-- [x] Success criteria are measurable
-- [x] Success criteria are technology-agnostic (no implementation details)
-- [x] All acceptance scenarios are defined
-- [x] Edge cases are identified
-- [x] Scope is clearly bounded
-- [x] Dependencies and assumptions identified
-
-**Clarification Status**: 1 clarification identified at FR-006 regarding version persistence strategy (will be addressed during planning phase)
 
 ## Feature Readiness
 
@@ -33,10 +24,11 @@
 
 ## Notes
 
-- Clarification item at FR-006 is intentional and deferred to planning: "Version information MUST be persisted in package.json after each main branch deployment (auto-increment) OR calculated from git tags"
-  - This represents a legitimate design decision that should be made during planning with consideration of: git history preservation, automation simplicity, and version tracking philosophy
-  - Two valid approaches identified with different trade-offs
-  - Placeholder maintained for planning team to evaluate
+- Version persistence strategy resolved: Git tags will be the source of truth for versioning
+  - Build-time version calculation from latest git tag (e.g., `git describe --tags --abbrev=0`)
+  - Separate manual workflow handles intentional version bumps and package.json updates
+  - Decouples version display from deployment automation
+  - Benefits: Simpler CI/CD, explicit version control, no auto-increment side effects
 
 **Checklist Status**: ✅ READY FOR PLANNING PHASE
 

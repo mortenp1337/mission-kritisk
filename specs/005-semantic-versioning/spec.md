@@ -86,7 +86,8 @@ As a code reviewer or QA tester, I want to easily access version/build informati
 - **FR-003**: The deploy-pr-preview workflow MUST extract PR metadata (number, title, branch, base branch) from GitHub Actions context and pass it to the build process
 - **FR-004**: For preview deployments, the `build-info.json` file (in `dist/preview/`) MUST include: PR number, PR title, head branch, base branch, commit SHA, and a link back to the PR
 - **FR-005**: The Vite build configuration MUST read environment variables containing version and metadata, inject them into the dist/ directory via build-info.json, and make them accessible without server-side processing
-- **FR-006**: Version information MUST be persisted in `package.json` after each main branch deployment (auto-increment) OR calculated from git tags (if manual tag approach is preferred) [NEEDS CLARIFICATION: version persistence strategy]
+- **FR-006**: Version information MUST be calculated from the latest git tag during build, with version determined by semver tag format (e.g., v1.4.2)
+- **FR-006b**: A separate manual workflow MUST exist to update `package.json` version field to match the latest git tag when desired (not automated with every build)
 - **FR-007**: The build-info.json file MUST be valid JSON, properly formatted, and include a schema version for future extensibility
 - **FR-008**: Workflows MUST validate that build-info.json exists and is properly formed before deploying to GitHub Pages
 
@@ -118,11 +119,12 @@ As a code reviewer or QA tester, I want to easily access version/build informati
 
 ## Assumptions
 
-- **Version Strategy**: Using automatic patch-version increment (0.0.x) for main; manual workflows will handle major/minor version bumps (P2 feature)
-- **Metadata Storage**: build-info.json will be created in dist/ root for production, dist/preview/ for PR previews
+- **Version Strategy**: Using git tags as source of truth for semantic versioning; version calculated at build-time from latest tag. Manual workflow available to update package.json when desired (not required for every build, decouples version display from deployment automation)
+- **Version Tag Format**: Git tags follow semver format (v1.4.0, v1.4.1, etc.). Build reads tags with `git describe --tags --abbrev=0` to determine current version
+- **Version Increment Workflow**: New workflow allows DevOps to create version bumps: receives version type (patch/minor/major), creates git tag, optionally updates package.json, and pushes changes to main
 - **GitHub Pages Structure**: Existing deployment structure (root for production, /preview/ for PR previews) remains unchanged
 - **Build Configuration**: Vite config will be extended to support environment variables; no major refactoring of build process needed
-- **Version Persistence**: For MVP, version will be stored in package.json and committed after deployment OR read from git tags (clarification needed before implementation)
+- **Version Persistence**: For MVP, version is read from git tags at build-time; no automatic version updates during regular CI/CD. Separate manual workflow handles intentional version bumps and package.json updates
 - **PR Context Availability**: PR metadata is only available during pull_request events; workflow_dispatch will use available context or default values
 - **Accessibility**: build-info.json is publicly readable from deployed site; no authentication required to view metadata
 
