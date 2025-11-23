@@ -106,11 +106,11 @@ jobs:
       run: |
         echo "Creating combined deployment structure..."
         mkdir -p combined
-        
+
         # Copy main branch content to root
         cp -r dist-main/* combined/
         echo "✅ Main branch content copied to root"
-        
+
         # If this is a preview deployment (not main branch), add preview subdirectory
         if [ "${{ github.ref_name }}" != "main" ]; then
           mkdir -p combined/preview
@@ -124,13 +124,13 @@ jobs:
     - name: Validate artifact structure
       run: |
         echo "Validating combined artifact structure..."
-        
+
         # Validate root content (always required)
         test -f combined/index.html || (echo "::error::Missing index.html at root" && exit 1)
         test -f combined/style.css || (echo "::error::Missing style.css at root" && exit 1)
         test -d combined/assets || (echo "::error::Missing assets directory at root" && exit 1)
         echo "✅ Root content validated"
-        
+
         # Validate preview content (if preview deployment)
         if [ "${{ github.ref_name }}" != "main" ]; then
           test -f combined/preview/index.html || (echo "::error::Missing preview/index.html" && exit 1)
@@ -138,7 +138,7 @@ jobs:
           test -d combined/preview/assets || (echo "::error::Missing preview/assets directory" && exit 1)
           echo "✅ Preview content validated"
         fi
-        
+
         echo "✅ All validation checks passed"
 
     - name: Log artifact structure
@@ -155,16 +155,16 @@ jobs:
       run: |
         SIZE=$(du -sm combined | cut -f1)
         echo "Combined artifact size: ${SIZE}MB"
-        
+
         if [ $SIZE -gt 1000 ]; then
           echo "::error::Artifact size ${SIZE}MB exceeds 1GB GitHub Pages limit"
           exit 1
         fi
-        
+
         if [ $SIZE -gt 800 ]; then
           echo "::warning::Artifact size ${SIZE}MB is approaching 1GB limit (80%+)"
         fi
-        
+
         echo "✅ Artifact size within limits"
 
     - name: Setup Pages
@@ -184,7 +184,7 @@ jobs:
         echo "🚀 Deployment successful!"
         echo ""
         echo "Production URL: ${{ steps.deployment.outputs.page_url }}"
-        
+
         if [ "${{ github.ref_name }}" != "main" ]; then
           echo "Preview URL: ${{ steps.deployment.outputs.page_url }}preview/"
           echo ""

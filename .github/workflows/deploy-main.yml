@@ -50,10 +50,10 @@ jobs:
           echo "::error::Preview directory found in production build - aborting"
           exit 1
         fi
-        
+
         test -f dist/index.html || (echo "::error::Missing index.html" && exit 1)
         test -d dist/assets || (echo "::error::Missing assets directory" && exit 1)
-        
+
         echo "✅ Production build validated"
 
     - name: Setup Pages
