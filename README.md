@@ -56,6 +56,40 @@ You can manually trigger preview deployments:
 
 ## 🎮 Game Features
 
+### Challenge Type System
+The game features a comprehensive challenge system with multiple difficulty levels and challenge categories:
+
+- **Difficulty Levels**: Choose from 4 difficulty levels (Niveau 1-4)
+  - Niveau 1 - Begynder (Beginner)
+  - Niveau 2 - Let Øvet (Slightly Practiced)
+  - Niveau 3 - Øvet (Practiced)
+  - Niveau 4 - Ekspert (Expert)
+  
+- **Challenge Categories**:
+  - **Regnearter (Arithmetic Operations)**: Traditional math problems
+    - Addition (available at all difficulty levels)
+    - Subtraction (available from difficulty 2+)
+    - Multiplication (available from difficulty 3+)
+    - Division (available only at difficulty 4)
+  - **Logik Opgaver (Logic Puzzles)**: Visual logic challenges
+    - Halvdele og Dobbelte (Halves and Doubles): Emoji-based problems with multiple choice answers
+
+- **Navigation Flow**: DifficultySelection → CategorySelection → ChallengeTypeMenu → Challenge → TowerPlacement
+- **Back Navigation**: All menus have back buttons that preserve your difficulty and category selections
+- **State Persistence**: Your difficulty and category choices persist throughout the game session
+
+### Logic Puzzles Features
+- **Visual Representation**: Problems displayed with emoji icons (🍎🍐🐶🐱⭐)
+- **Multiple Choice**: 3-4 answer options per problem
+- **Real-World Contexts**: 30% of problems use scenarios like prices, recipes, and quantities
+- **Smart Feedback**: 2 attempts per problem with color-coded feedback
+  - Green: Correct answer
+  - Yellow: Try again (first attempt failed)
+  - Orange: Show correct answer (both attempts exhausted)
+- **Emoji Grouping**: Large quantities displayed as "🍎×8" for better readability
+- **Difficulty Scaling**: Problem complexity increases with difficulty level
+- **Consistent Rewards**: Earn the same coins as arithmetic challenges
+
 ### Adjustable Game Speed Control
 Control the pace of gameplay with real-time speed adjustment:
 
