@@ -75,7 +75,7 @@ The speed control buttons must not obscure the tower placement grid or other cri
 
 - What happens if player mashes the speed buttons repeatedly? (Controls use 100ms debounce per button to prevent overlapping presses)
 - How does the game handle speed changes mid-calculation? (Physics and animations must update smoothly without glitches)
-- What is the minimum and maximum speed range? (0.5x to 2.0x, enforced via additive stepping)
+- What is the minimum and maximum speed range? (0.5x to 5.0x, enforced via additive stepping)
 - What happens to tower shooting/targeting when speed changes? (Should maintain accuracy and behavior scaling)
 - Does wave timing adjust with speed? (Wave duration scales proportionally with speed change)
 

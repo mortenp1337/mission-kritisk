@@ -1,14 +1,15 @@
 import { Scene, GameObjects } from 'phaser';
+import { SPEED_CONTROL } from '../constants/speedControl';
 
 export class SpeedControl {
     private scene: Scene;
     private onSpeedChange: (speed: number) => void;
     
     private currentSpeed: number = 1.0;
-    private readonly MIN_SPEED = 0.5;
-    private readonly MAX_SPEED = 5.0;  // Increased max speed to 5x
-    private readonly SPEED_STEP = 0.5;
-    private readonly DEBOUNCE_DELAY = 100; // milliseconds
+    private readonly MIN_SPEED = SPEED_CONTROL.MIN_SPEED;
+    private readonly MAX_SPEED = SPEED_CONTROL.MAX_SPEED;
+    private readonly SPEED_STEP = SPEED_CONTROL.SPEED_STEP;
+    private readonly DEBOUNCE_DELAY = SPEED_CONTROL.DEBOUNCE_DELAY;
     
     // UI elements
     private decreaseButton: GameObjects.Text;
