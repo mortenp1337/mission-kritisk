@@ -25,6 +25,10 @@ export const DanishText = {
     noSpace: 'Ingen Plads!',
     prepareDefense: 'Forbered Forsvar',
     waveCounter: (current: number, total: number) => `Bølge ${current}/${total}`,
+    selectPlacement: 'Vælg placering for tårn',
+    cellOccupied: 'Celle optaget',
+    cannotPlaceOnPath: 'Kan ikke placere på stien',
+    towerPlaced: 'Tårn placeret!',
     
     // Tower Shop
     basicTower: 'Basis Tårn',

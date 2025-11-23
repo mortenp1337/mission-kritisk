@@ -54,61 +54,69 @@ export class TowerPlacement extends Scene {
     }
     
     private createUI(): void {
-        // Wave counter
-        this.waveText = this.add.text(512, 30, DanishText.waveCounter(this.session.currentWave, 5), {
+        // Coin display - top left
+        this.coinText = this.add.text(20, 15, DanishText.coins + ' ' + this.session.coins, {
             fontFamily: 'Arial Black',
-            fontSize: 24,
-            color: '#ffff00',
-            stroke: '#000000',
-            strokeThickness: 4,
-            align: 'center'
-        }).setOrigin(0.5);
-        
-        // Coin display
-        this.coinText = this.add.text(50, 30, DanishText.coins + ' ' + this.session.coins, {
-            fontFamily: 'Arial Black',
-            fontSize: 24,
+            fontSize: 20,
             color: '#ffff00',
             stroke: '#000000',
             strokeThickness: 4
         });
         
-        // Buy Tower button
+        // Wave counter - top right
+        this.waveText = this.add.text(1004, 15, DanishText.waveCounter(this.session.currentWave, 5), {
+            fontFamily: 'Arial Black',
+            fontSize: 20,
+            color: '#ffff00',
+            stroke: '#000000',
+            strokeThickness: 4,
+            align: 'right'
+        }).setOrigin(1, 0);
+        
+        // Buy Tower button - centered top, left position
+        // Grid starts at y=64, so y=45 with smaller buttons
         const towerCost = getTowerCost('basic');
-        this.buyTowerButton = this.add.rectangle(900, 100, 200, 60, 0x4444ff, 0.8);
-        this.buyTowerButton.setStrokeStyle(3, 0xffffff);
+        this.buyTowerButton = this.add.rectangle(370, 45, 200, 40, 0x4444ff, 0.9);
+        this.buyTowerButton.setStrokeStyle(2, 0xffffff);
         this.buyTowerButton.setInteractive({ useHandCursor: true });
         
-        this.buyTowerText = this.add.text(900, 100, 
-            `${DanishText.buyTower}\n(${towerCost} ${DanishText.coins.toLowerCase()})`, {
+        this.buyTowerText = this.add.text(370, 45, 
+            `${DanishText.buyTower} (${towerCost})`, {
             fontFamily: 'Arial',
+            fontSize: 15,
+            color: '#ffffff',
+            align: 'center'
+        }).setOrigin(0.5);
+        
+        this.buyTowerButton.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            pointer.event.stopPropagation();
+            this.enterPlacementMode();
+        });
+        this.buyTowerButton.on('pointerover', () => this.buyTowerButton.setFillStyle(0x6666ff));
+        this.buyTowerButton.on('pointerout', () => this.buyTowerButton.setFillStyle(0x4444ff));
+        
+        // Start Wave button - centered top, right position
+        this.startWaveButton = this.add.rectangle(590, 45, 160, 40, 0x00aa00, 0.9);
+        this.startWaveButton.setStrokeStyle(2, 0xffffff);
+        this.startWaveButton.setInteractive({ useHandCursor: true });
+        
+        this.startWaveText = this.add.text(590, 45, DanishText.startWave, {
+            fontFamily: 'Arial Black',
             fontSize: 16,
             color: '#ffffff',
             align: 'center'
         }).setOrigin(0.5);
         
-        this.buyTowerButton.on('pointerdown', () => this.enterPlacementMode());
-        this.buyTowerButton.on('pointerover', () => this.buyTowerButton.setFillStyle(0x6666ff));
-        this.buyTowerButton.on('pointerout', () => this.buyTowerButton.setFillStyle(0x4444ff));
-        
-        // Start Wave button
-        this.startWaveButton = this.add.rectangle(900, 200, 200, 60, 0x00aa00, 0.8);
-        this.startWaveButton.setStrokeStyle(3, 0xffffff);
-        this.startWaveButton.setInteractive({ useHandCursor: true });
-        
-        this.startWaveText = this.add.text(900, 200, DanishText.startWave, {
-            fontFamily: 'Arial Black',
-            fontSize: 20,
-            color: '#ffffff',
-            align: 'center'
-        }).setOrigin(0.5);
-        
-        this.startWaveButton.on('pointerdown', () => this.startDefenseWave());
+        this.startWaveButton.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+            pointer.event.stopPropagation();
+            this.startDefenseWave();
+        });
         this.startWaveButton.on('pointerover', () => this.startWaveButton.setFillStyle(0x00ff00));
         this.startWaveButton.on('pointerout', () => this.startWaveButton.setFillStyle(0x00aa00));
         
-        // Feedback text
-        this.feedbackText = this.add.text(512, 720, '', {
+        // Feedback text - positioned BELOW the grid
+        // Grid ends at y=704, so y=730 is safe
+        this.feedbackText = this.add.text(512, 730, '', {
             fontFamily: 'Arial',
             fontSize: 20,
             color: '#ff0000',
@@ -122,6 +130,11 @@ export class TowerPlacement extends Scene {
         this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
             if (!this.placementMode) return;
             
+            // Don't process grid clicks if pointer is over UI buttons
+            if (this.isPointerOverUI(pointer)) {
+                return;
+            }
+            
             const gridPos = this.grid.screenToGrid(pointer.x, pointer.y);
             if (gridPos) {
                 this.tryPlaceTower(gridPos.row, gridPos.col);
@@ -134,6 +147,13 @@ export class TowerPlacement extends Scene {
             const gridPos = this.grid.screenToGrid(pointer.x, pointer.y);
             this.updateHighlight(gridPos);
         });
+        
+        // ESC key to cancel placement mode
+        this.input.keyboard?.on('keydown-ESC', () => {
+            if (this.placementMode) {
+                this.exitPlacementMode();
+            }
+        });
     }
     
     private enterPlacementMode(): void {
@@ -145,7 +165,7 @@ export class TowerPlacement extends Scene {
         }
         
         this.placementMode = true;
-        this.feedbackText.setText('Vælg en celle på griddet'); // Could add to DanishText
+        this.feedbackText.setText(DanishText.selectPlacement);
     }
     
     private updateHighlight(gridPos: { row: number; col: number } | null): void {
@@ -196,8 +216,9 @@ export class TowerPlacement extends Scene {
             level: 1
         });
         
-        // Update UI
+        // Update UI and show success feedback
         this.updateCoinDisplay();
+        this.showFeedback(DanishText.towerPlaced);
         this.exitPlacementMode();
     }
     
@@ -209,6 +230,17 @@ export class TowerPlacement extends Scene {
             this.highlightedCell.destroy();
             this.highlightedCell = null;
         }
+    }
+    
+    private isPointerOverUI(pointer: Phaser.Input.Pointer): boolean {
+        // Check if pointer is over any interactive UI element
+        const gameObjects = this.input.hitTestPointer(pointer);
+        
+        // Check if any hit objects are our UI buttons
+        return gameObjects.some(obj => 
+            obj === this.buyTowerButton || 
+            obj === this.startWaveButton
+        );
     }
     
     private restoreTowers(): void {
