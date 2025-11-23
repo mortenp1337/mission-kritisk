@@ -35,7 +35,7 @@ export class MainMenu extends Scene
         
         this.startButton.setInteractive({ useHandCursor: true });
         this.startButton.on('pointerdown', () => {
-            this.scene.start('GradeSelection');
+            this.scene.start('DifficultySelection');
         });
         
         this.startButton.on('pointerover', () => {

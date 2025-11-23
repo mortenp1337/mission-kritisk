@@ -1,14 +1,15 @@
-// MathChallenge scene - presents math problems and awards coins
+// LogicChallenge scene - presents logic puzzles with multiple choice answers
 import { Scene, GameObjects } from 'phaser';
 import { DanishText } from '../data/danishText';
 import { GameSession } from '../systems/GameSession';
-import { MathProblemGenerator } from '../systems/MathProblemGenerator';
-import { MathProblem } from '../entities/MathProblem';
+import { LogicProblemGenerator } from '../systems/LogicProblemGenerator';
+import { LogicProblem } from '../entities/LogicProblem';
+import { ProblemType } from '../types/LogicTypes';
 import { calculateWaveConfig } from '../data/waveConfig';
 
-export class MathChallenge extends Scene {
-    private generator: MathProblemGenerator;
-    private currentProblem: MathProblem | null;
+export class LogicChallenge extends Scene {
+    private generator: LogicProblemGenerator;
+    private currentProblem: LogicProblem | null;
     private problemIndex: number;
     private totalProblems: number;
     private session: GameSession;
@@ -23,15 +24,15 @@ export class MathChallenge extends Scene {
     private coinText: GameObjects.Text;
     
     constructor() {
-        super('MathChallenge');
+        super('LogicChallenge');
     }
     
     create() {
         this.session = GameSession.getInstance();
-        this.generator = new MathProblemGenerator();
+        this.generator = new LogicProblemGenerator();
         this.currentProblem = null;
         this.problemIndex = 0;
-        this.totalProblems = 5;
+        this.totalProblems = 3;  // 3 problems to match spec (FR-018)
         
         this.createUI();
         this.nextProblem();
@@ -59,20 +60,21 @@ export class MathChallenge extends Scene {
             align: 'center'
         }).setOrigin(0.5);
         
-        // Question text
-        this.questionText = this.add.text(512, 200, '', {
+        // Question text (larger area for emoji display)
+        this.questionText = this.add.text(512, 220, '', {
             fontFamily: 'Arial Black',
-            fontSize: 48,
+            fontSize: 40,
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 6,
-            align: 'center'
+            align: 'center',
+            wordWrap: { width: 800 }
         }).setOrigin(0.5);
         
         // Feedback text (initially hidden)
-        this.feedbackText = this.add.text(512, 300, '', {
+        this.feedbackText = this.add.text(512, 320, '', {
             fontFamily: 'Arial Black',
-            fontSize: 36,
+            fontSize: 32,
             color: '#00ff00',
             stroke: '#000000',
             strokeThickness: 4,
@@ -101,9 +103,10 @@ export class MathChallenge extends Scene {
         }
         
         this.problemIndex++;
-        // Use difficulty from session (maps to grade via difficulty - 1)
-        const grade = this.session.difficulty - 1;
-        this.currentProblem = this.generator.generate(grade, this.session.currentWave);
+        
+        // Generate halves or doubles problem randomly
+        const problemType: ProblemType = Math.random() > 0.5 ? 'halves' : 'doubles';
+        this.currentProblem = this.generator.generate(this.session.difficulty, problemType);
         
         this.updateUI();
         this.createAnswerButtons();
@@ -113,7 +116,7 @@ export class MathChallenge extends Scene {
         if (!this.currentProblem) return;
         
         this.problemCounterText.setText(DanishText.problemCounter(this.problemIndex, this.totalProblems));
-        this.questionText.setText(this.currentProblem.question);
+        this.questionText.setText(this.currentProblem.getFormattedQuestion());
         this.feedbackText.setVisible(false);
     }
     
@@ -124,14 +127,16 @@ export class MathChallenge extends Scene {
         
         if (!this.currentProblem) return;
         
-        const answers = this.currentProblem.allAnswers;
+        const options = this.currentProblem.options;
         const buttonWidth = 200;
         const buttonHeight = 100;
         const spacing = 40;
+        
+        // Layout: 2x2 grid, with empty slot for 3 options (like MathChallenge pattern)
         const startX = 512 - buttonWidth - spacing / 2;
         const startY = 450;
         
-        answers.forEach((answer, index) => {
+        options.forEach((option, index) => {
             const col = index % 2;
             const row = Math.floor(index / 2);
             const x = startX + col * (buttonWidth + spacing);
@@ -144,10 +149,10 @@ export class MathChallenge extends Scene {
             bg.setStrokeStyle(4, 0xffffff);
             bg.setInteractive({ useHandCursor: true });
             
-            // Button text
-            const text = this.add.text(0, 0, answer.toString(), {
-                fontFamily: 'Arial Black',
-                fontSize: 36,
+            // Button text - show emoji representation
+            const text = this.add.text(0, 0, option.emojiRepresentation, {
+                fontFamily: 'Arial',
+                fontSize: 32,
                 color: '#ffffff',
                 align: 'center'
             }).setOrigin(0.5);
@@ -157,17 +162,17 @@ export class MathChallenge extends Scene {
             
             // Button interactions
             bg.on('pointerdown', () => {
-                this.handleAnswer(answer);
+                this.handleAnswer(option.value);
             });
             
             bg.on('pointerover', () => {
                 bg.setFillStyle(0x6666ff);
-                text.setScale(1.1);
+                container.setScale(1.1);
             });
             
             bg.on('pointerout', () => {
                 bg.setFillStyle(0x4444ff);
-                text.setScale(1.0);
+                container.setScale(1.0);
             });
         });
     }
@@ -175,17 +180,16 @@ export class MathChallenge extends Scene {
     private handleAnswer(answer: number): void {
         if (!this.currentProblem) return;
         
-        this.currentProblem.incrementAttempt();
         const isCorrect = this.currentProblem.isCorrect(answer);
         
         if (isCorrect) {
-            // Award coins
+            // Award coins (reuse existing coin reward logic from MathChallenge - FR-031)
             const waveConfig = calculateWaveConfig(this.session.currentWave);
             this.session.addCoins(waveConfig.rewards.coinPerProblem);
             this.session.incrementProblemsSolved();
             this.updateCoinDisplay();
             
-            // Show positive feedback
+            // Show positive feedback (green)
             this.showFeedback(DanishText.correct, 0x00ff00);
             
             // Proceed to next problem after delay
@@ -193,8 +197,10 @@ export class MathChallenge extends Scene {
                 this.nextProblem();
             });
         } else {
-            if (this.currentProblem.hasReachedMaxAttempts()) {
-                // Show correct answer and move on
+            this.currentProblem.decrementAttempts();
+            
+            if (!this.currentProblem.hasAttemptsRemaining()) {
+                // Show correct answer and move on (FR-019)
                 this.showFeedback(
                     DanishText.theAnswerIs(this.currentProblem.correctAnswer), 
                     0xff8800
@@ -204,8 +210,8 @@ export class MathChallenge extends Scene {
                     this.nextProblem();
                 });
             } else {
-                // Show try again feedback
-                this.showFeedback(DanishText.tryAgain, 0xff0000);
+                // Show try again feedback (yellow/red - FR-028)
+                this.showFeedback(DanishText.tryAgain, 0xffff00);
             }
         }
     }
@@ -215,12 +221,12 @@ export class MathChallenge extends Scene {
         this.feedbackText.setColor(`#${color.toString(16).padStart(6, '0')}`);
         this.feedbackText.setVisible(true);
         
-        // Fade in effect
+        // Fade in effect (within 300ms - FR-028)
         this.feedbackText.setAlpha(0);
         this.tweens.add({
             targets: this.feedbackText,
             alpha: 1,
-            duration: 300,
+            duration: 200,
             ease: 'Power2'
         });
     }

@@ -1,4 +1,7 @@
 // GradeSelection scene - allows children to select their grade level (0-3)
+// DEPRECATED: This scene is replaced by DifficultySelection which uses difficulty levels (1-4)
+// instead of grade levels (0-3). This scene is kept for backward compatibility but should
+// not be used in new code. Use DifficultySelection → CategorySelection → ChallengeTypeMenu flow instead.
 import { Scene, GameObjects } from 'phaser';
 import { DanishText } from '../data/danishText';
 import { GameSession } from '../systems/GameSession';

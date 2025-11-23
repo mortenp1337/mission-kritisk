@@ -5,7 +5,10 @@ import { SPEED_CONTROL } from '../constants/speedControl';
 export class GameSession implements IGameSession {
     private static instance: GameSession;
     
-    grade: number;
+    grade: number;  // DEPRECATED: Use difficulty instead
+    difficulty: number;
+    category: string;
+    challengeType: string;
     coins: number;
     currentWave: number;
     baseHealth: number;
@@ -26,7 +29,10 @@ export class GameSession implements IGameSession {
     }
     
     reset(): void {
-        this.grade = 0;
+        this.grade = 0;  // DEPRECATED: Kept for backward compatibility
+        this.difficulty = 1;
+        this.category = '';
+        this.challengeType = '';
         this.coins = 0;
         this.currentWave = 1;
         this.baseHealth = 10;
@@ -41,6 +47,26 @@ export class GameSession implements IGameSession {
             throw new Error(`Invalid grade: ${grade}. Must be 0-3.`);
         }
         this.grade = grade;
+    }
+    
+    setDifficulty(difficulty: number): void {
+        if (difficulty < 1 || difficulty > 4) {
+            throw new Error(`Invalid difficulty: ${difficulty}. Must be 1-4.`);
+        }
+        this.difficulty = difficulty;
+        // Maintain backward compatibility: set grade = difficulty - 1
+        this.grade = difficulty - 1;
+    }
+    
+    setCategory(category: string): void {
+        if (category !== 'math' && category !== 'logic') {
+            throw new Error(`Invalid category: ${category}. Must be 'math' or 'logic'.`);
+        }
+        this.category = category;
+    }
+    
+    setChallengeType(type: string): void {
+        this.challengeType = type;
     }
     
     addCoins(amount: number): void {
