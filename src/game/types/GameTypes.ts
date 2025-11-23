@@ -1,7 +1,10 @@
 // Game session and state types
 
 export interface GameSession {
-    grade: number;                    // Selected grade level (0-3)
+    grade: number;                    // Selected grade level (0-3) - DEPRECATED: Use difficulty instead
+    difficulty: number;               // Selected difficulty level (1-4)
+    category: string;                 // Selected challenge category ('math' | 'logic')
+    challengeType: string;            // Selected challenge type identifier
     coins: number;                    // Current coin balance
     currentWave: number;              // Wave number (1-5)
     baseHealth: number;               // Base health points (starts at 10)
