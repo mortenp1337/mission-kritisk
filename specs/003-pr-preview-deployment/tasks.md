@@ -24,9 +24,9 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **Purpose**: Verify existing infrastructure is ready for preview deployments
 
-- [ ] T001 Verify GitHub Pages is enabled and configured at repository settings
-- [ ] T002 Verify repository permissions include `pages: write` and `id-token: write`
-- [ ] T003 Create feature branch `003-pr-preview-deployment` from main (if not exists)
+- [x] T001 Verify GitHub Pages is enabled and configured at repository settings
+- [x] T002 Verify repository permissions include `pages: write` and `id-token: write`
+- [x] T003 Create feature branch `003-pr-preview-deployment` from main (if not exists)
 
 ---
 
@@ -36,10 +36,10 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Review existing `.github/workflows/deploy-main.yml` workflow structure
-- [ ] T005 Document existing build process and artifact structure from main branch
-- [ ] T006 Verify Vite configuration `base: './'` supports subdirectory deployments
-- [ ] T007 Test that existing build output (`dist/`) has correct relative paths for assets
+- [x] T004 Review existing `.github/workflows/deploy-main.yml` workflow structure
+- [x] T005 Document existing build process and artifact structure from main branch
+- [x] T006 Verify Vite configuration `base: './'` supports subdirectory deployments
+- [x] T007 Test that existing build output (`dist/`) has correct relative paths for assets
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,17 +53,17 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Create `.github/workflows/deploy-pr-preview.yml` workflow file with basic structure and triggers
-- [ ] T009 [US1] Add workflow triggers in `.github/workflows/deploy-pr-preview.yml`: pull_request events (opened, synchronize, reopened) targeting main branch
-- [ ] T010 [US1] Add concurrency control in `.github/workflows/deploy-pr-preview.yml`: group "pages-preview", cancel-in-progress true
-- [ ] T011 [US1] Add permissions in `.github/workflows/deploy-pr-preview.yml`: contents read, pages write, id-token write
-- [ ] T012 [P] [US1] Create `build-main` job in `.github/workflows/deploy-pr-preview.yml` with checkout main branch (forced), setup Node.js 18, npm ci, npm run build-nolog, upload dist-main artifact
-- [ ] T013 [P] [US1] Create `build-pr` job in `.github/workflows/deploy-pr-preview.yml` with conditional execution (if ref_name != 'main'), checkout triggering branch, setup Node.js 18, npm ci, npm run build-nolog, upload dist-pr artifact
-- [ ] T014 [US1] Create `deploy` job in `.github/workflows/deploy-pr-preview.yml` with needs: [build-main, build-pr], environment: github-pages
-- [ ] T015 [US1] Add artifact download steps in deploy job: download dist-main artifact to main-build/, conditionally download dist-pr artifact to pr-build/ (if exists)
-- [ ] T016 [US1] Add artifact combination shell script in deploy job: copy main-build/* to combined/, conditionally copy pr-build/* to combined/preview/ (if branch != main)
-- [ ] T017 [US1] Add GitHub Pages upload steps in deploy job: configure-pages, upload-pages-artifact from combined/, deploy-pages
-- [ ] T018 [US1] Add deployment summary output in deploy job: log page_url and computed preview_url (page_url + '/preview/')
+- [x] T008 [US1] Create `.github/workflows/deploy-pr-preview.yml` workflow file with basic structure and triggers
+- [x] T009 [US1] Add workflow triggers in `.github/workflows/deploy-pr-preview.yml`: pull_request events (opened, synchronize, reopened) targeting main branch
+- [x] T010 [US1] Add concurrency control in `.github/workflows/deploy-pr-preview.yml`: group "pages-preview", cancel-in-progress true
+- [x] T011 [US1] Add permissions in `.github/workflows/deploy-pr-preview.yml`: contents read, pages write, id-token write
+- [x] T012 [P] [US1] Create `build-main` job in `.github/workflows/deploy-pr-preview.yml` with checkout main branch (forced), setup Node.js 18, npm ci, npm run build-nolog, upload dist-main artifact
+- [x] T013 [P] [US1] Create `build-pr` job in `.github/workflows/deploy-pr-preview.yml` with conditional execution (if ref_name != 'main'), checkout triggering branch, setup Node.js 18, npm ci, npm run build-nolog, upload dist-pr artifact
+- [x] T014 [US1] Create `deploy` job in `.github/workflows/deploy-pr-preview.yml` with needs: [build-main, build-pr], environment: github-pages
+- [x] T015 [US1] Add artifact download steps in deploy job: download dist-main artifact to main-build/, conditionally download dist-pr artifact to pr-build/ (if exists)
+- [x] T016 [US1] Add artifact combination shell script in deploy job: copy main-build/* to combined/, conditionally copy pr-build/* to combined/preview/ (if branch != main)
+- [x] T017 [US1] Add GitHub Pages upload steps in deploy job: configure-pages, upload-pages-artifact from combined/, deploy-pages
+- [x] T018 [US1] Add deployment summary output in deploy job: log page_url and computed preview_url (page_url + '/preview/')
 - [ ] T019 [US1] Test workflow by creating a test PR with minor game change (e.g., modify menu text)
 - [ ] T020 [US1] Verify preview URL is accessible and displays PR changes correctly with functional game assets
 
@@ -79,11 +79,11 @@ description: "Implementation tasks for PR Preview Deployment System"
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: check for preview directory, fail if found
-- [ ] T022 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify index.html exists in dist/
-- [ ] T023 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify assets directory exists in dist/
-- [ ] T024 [US2] Add deployment type notice in `.github/workflows/deploy-main.yml` before deployment: log "Deploying production build (main branch only)"
-- [ ] T025 [US2] Update concurrency group in `.github/workflows/deploy-main.yml`: ensure it differs from preview ("pages" vs "pages-preview"), cancel-in-progress false
+- [x] T021 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: check for preview directory, fail if found
+- [x] T022 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify index.html exists in dist/
+- [x] T023 [US2] Add validation step in `.github/workflows/deploy-main.yml` after build: verify assets directory exists in dist/
+- [x] T024 [US2] Add deployment type notice in `.github/workflows/deploy-main.yml` before deployment: log "Deploying production build (main branch only)"
+- [x] T025 [US2] Update concurrency group in `.github/workflows/deploy-main.yml`: ensure it differs from preview ("pages" vs "pages-preview"), cancel-in-progress false
 - [ ] T026 [US2] Test main branch deployment by merging a small change to main (or using workflow_dispatch)
 - [ ] T027 [US2] Verify production deployment contains no preview folder and all files are present
 
