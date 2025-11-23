@@ -2,6 +2,7 @@
 import { GridPosition } from '../../types/GameTypes';
 import { TowerStats } from '../../types/TowerTypes';
 import { Zombie } from '../../types/EnemyTypes';
+import { getAdjustedFireRate } from '../../data/gameplayConfig';
 
 export abstract class Tower {
     id: string;
@@ -36,7 +37,8 @@ export abstract class Tower {
         
         this.attackDamage = stats.attackDamage;
         this.attackRange = stats.attackRange;
-        this.fireRate = stats.fireRate;
+        // Apply fire rate multiplier by dividing delay (faster shooting = shorter delay)
+        this.fireRate = stats.fireRate / getAdjustedFireRate(1.0);
         this.lastFireTime = 0;
         
         this.target = null;
@@ -106,7 +108,8 @@ export abstract class Tower {
         this.level++;
         this.attackDamage = stats.attackDamage;
         this.attackRange = stats.attackRange;
-        this.fireRate = stats.fireRate;
+        // Apply fire rate multiplier to upgraded stats
+        this.fireRate = stats.fireRate / getAdjustedFireRate(1.0);
         
         // Visual update - make sprite slightly darker and larger
         if (this.sprite instanceof Phaser.GameObjects.Rectangle) {

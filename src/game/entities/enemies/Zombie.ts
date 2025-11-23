@@ -1,6 +1,7 @@
 // Zombie enemy - follows path and attacks base
 import { Zombie as IZombie, ZombieStats } from '../../types/EnemyTypes';
 import { ScreenPosition, GridPosition } from '../../types/GameTypes';
+import { getAdjustedSpeed } from '../../data/gameplayConfig';
 
 export class Zombie implements IZombie {
     id: string;
@@ -26,7 +27,7 @@ export class Zombie implements IZombie {
         this.id = `zombie-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
         this.health = stats.health;
         this.maxHealth = stats.health;
-        this.speed = stats.speed;
+        this.speed = getAdjustedSpeed(stats.speed); // Apply speed multiplier
         this.pathProgress = 0;
         this.position = { ...spawnPosition };
         this.damageToBase = 1;
