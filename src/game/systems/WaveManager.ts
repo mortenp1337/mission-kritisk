@@ -36,14 +36,15 @@ export class WaveManager {
         this.spawnTimer = 0;
     }
     
-    update(time: number, delta: number): void {
+    update(_time: number, delta: number): void {
         if (!this.waveStarted) {
             return;
         }
         
-        // Spawn zombies at intervals
+        // Spawn zombies at intervals, scaled by game speed to maintain relative spacing
         if (this.spawnedCount < this.waveConfig.zombieCount) {
-            this.spawnTimer += delta;
+            const scaledDelta = delta * this.scene.time.timeScale;
+            this.spawnTimer += scaledDelta;
             
             if (this.spawnTimer >= this.waveConfig.spawnInterval) {
                 this.spawnZombie();

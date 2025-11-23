@@ -8,6 +8,7 @@ export interface GameSession {
     placedTowers: PlacedTowerData[];  // Array of tower placements
     problemsSolved: number;           // Count of correctly answered problems this wave
     totalScore: number;               // Accumulated score across all waves
+    gameSpeed: number;                // Current game speed multiplier (0.5x to 5.0x)
 }
 
 export interface PlacedTowerData {

@@ -1,5 +1,6 @@
 // GameSession singleton - persists game state across scenes
 import { GameSession as IGameSession, PlacedTowerData } from '../types/GameTypes';
+import { SPEED_CONTROL } from '../constants/speedControl';
 
 export class GameSession implements IGameSession {
     private static instance: GameSession;
@@ -11,6 +12,7 @@ export class GameSession implements IGameSession {
     placedTowers: PlacedTowerData[];
     problemsSolved: number;
     totalScore: number;
+    gameSpeed: number;
     
     private constructor() {
         this.reset();
@@ -31,6 +33,7 @@ export class GameSession implements IGameSession {
         this.placedTowers = [];
         this.problemsSolved = 0;
         this.totalScore = 0;
+        this.gameSpeed = 1.0;
     }
     
     setGrade(grade: number): void {
@@ -86,5 +89,13 @@ export class GameSession implements IGameSession {
     
     hasWon(): boolean {
         return this.currentWave > 5 && this.baseHealth > 0;
+    }
+    
+    setGameSpeed(multiplier: number): void {
+        this.gameSpeed = Math.max(SPEED_CONTROL.MIN_SPEED, Math.min(SPEED_CONTROL.MAX_SPEED, multiplier));
+    }
+    
+    resetGameSpeed(): void {
+        this.gameSpeed = 1.0;
     }
 }

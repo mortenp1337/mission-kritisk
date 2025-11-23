@@ -7,6 +7,7 @@ import { BasicTower } from '../entities/towers/BasicTower';
 import { WaveManager } from '../systems/WaveManager';
 import { Base } from '../entities/Base';
 import { Zombie } from '../entities/enemies/Zombie';
+import { SpeedControl } from '../entities/SpeedControl';
 
 export class DefenseWave extends Scene {
     private session: GameSession;
@@ -14,6 +15,7 @@ export class DefenseWave extends Scene {
     private towers: BasicTower[];
     private waveManager: WaveManager;
     private base: Base;
+    private speedControl: SpeedControl;
     
     // UI elements
     private background: GameObjects.Image;
@@ -83,6 +85,12 @@ export class DefenseWave extends Scene {
             stroke: '#000000',
             strokeThickness: 3
         }).setOrigin(1, 0);
+        
+        // Speed control - initialized with callback to update scene's timeScale
+        this.speedControl = new SpeedControl(this, (speed: number) => {
+            this.time.timeScale = speed;
+            this.session.setGameSpeed(speed);
+        });
     }
     
     update(time: number, delta: number): void {
@@ -127,6 +135,10 @@ export class DefenseWave extends Scene {
     }
     
     private onWaveComplete(): void {
+        // Reset speed to normal
+        this.time.timeScale = 1.0;
+        this.session.resetGameSpeed();
+        
         // Show completion message (no coins awarded for wave completion)
         const message = this.add.text(512, 384, 
             DanishText.waveComplete, {
@@ -155,6 +167,10 @@ export class DefenseWave extends Scene {
     }
     
     private onGameOver(victory: boolean): void {
+        // Reset speed to normal
+        this.time.timeScale = 1.0;
+        this.session.resetGameSpeed();
+        
         this.scene.start('GameOver', { victory });
     }
     
@@ -169,6 +185,12 @@ export class DefenseWave extends Scene {
             this.baseHealthText.setColor('#ffaa00');
         } else {
             this.baseHealthText.setColor('#ff0000');
+        }
+    }
+    
+    shutdown(): void {
+        if (this.speedControl) {
+            this.speedControl.destroy();
         }
     }
 }
