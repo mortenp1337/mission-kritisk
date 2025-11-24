@@ -25,11 +25,21 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history needed for git describe
+
+    - name: Extract version from git tag
+      id: version
+      run: |
+        VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "::notice::Version: $VERSION"
 
     - name: Identify deployment type
       run: |
         echo "::notice::Production deployment from main branch"
         echo "::notice::Commit: ${{ github.sha }}"
+        echo "::notice::Version: ${{ steps.version.outputs.version }}"
         echo "::notice::No preview content will be deployed"
 
     - name: Setup Node.js
@@ -43,6 +53,9 @@ jobs:
 
     - name: Build project
       run: npm run build-nolog
+      env:
+        VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+        VITE_COMMIT_SHA: ${{ github.sha }}
 
     - name: Validate production build
       run: |
@@ -55,6 +68,34 @@ jobs:
         test -d dist/assets || (echo "::error::Missing assets directory" && exit 1)
 
         echo "✅ Production build validated"
+
+    - name: Validate build metadata
+      run: |
+        if [ ! -f "dist/.meta/build-info.json" ]; then
+          echo "::error::Missing build-info.json - build metadata not generated"
+          exit 1
+        fi
+
+        # Validate JSON structure
+        if ! jq empty dist/.meta/build-info.json 2>/dev/null; then
+          echo "::error::build-info.json is not valid JSON"
+          exit 1
+        fi
+
+        # Verify required fields
+        REQUIRED_FIELDS=("version" "commit_sha" "build_timestamp" "deployment_type")
+        for field in "${REQUIRED_FIELDS[@]}"; do
+          if ! jq -e ".${field}" dist/.meta/build-info.json > /dev/null 2>&1; then
+            echo "::error::Missing required field: ${field}"
+            exit 1
+          fi
+        done
+
+        # Display build info
+        echo "✅ Build metadata validated"
+        echo "::group::Build Info"
+        jq . dist/.meta/build-info.json
+        echo "::endgroup::"
 
     - name: Setup Pages
       uses: actions/configure-pages@v4

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { generateBuildInfoPlugin } from './plugins/generate-build-info.js';
 
 const phasermsg = () => {
     return {
@@ -42,6 +43,7 @@ export default defineConfig({
         port: 8080
     },
     plugins: [
-        phasermsg()
+        phasermsg(),
+        generateBuildInfoPlugin()
     ]
 });

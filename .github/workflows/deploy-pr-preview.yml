@@ -24,6 +24,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         ref: main
+        fetch-depth: 0  # Full history for git describe
+
+    - name: Extract version from git tag
+      id: version
+      run: |
+        VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "::notice::Version: $VERSION"
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -38,6 +46,9 @@ jobs:
       id: build-main
       continue-on-error: true
       run: npm run build-nolog
+      env:
+        VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+        VITE_COMMIT_SHA: ${{ github.sha }}
 
     - name: Check build status
       if: steps.build-main.outcome == 'failure'
@@ -59,6 +70,33 @@ jobs:
     steps:
     - name: Checkout PR branch
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for git describe
+
+    - name: Extract version from git tag
+      id: version
+      run: |
+        VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Extract PR metadata
+      id: pr-metadata
+      if: github.event_name == 'pull_request'
+      run: |
+        PR_NUMBER=${{ github.event.pull_request.number }}
+        PR_TITLE=${{ github.event.pull_request.title }}
+        PR_HEAD_BRANCH=${{ github.event.pull_request.head.ref }}
+        PR_BASE_BRANCH=${{ github.event.pull_request.base.ref }}
+        PR_URL="https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+        
+        echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
+        echo "title=$PR_TITLE" >> $GITHUB_OUTPUT
+        echo "head_branch=$PR_HEAD_BRANCH" >> $GITHUB_OUTPUT
+        echo "base_branch=$PR_BASE_BRANCH" >> $GITHUB_OUTPUT
+        echo "url=$PR_URL" >> $GITHUB_OUTPUT
+        
+        echo "::notice::PR #$PR_NUMBER: $PR_TITLE"
+        echo "::notice::Branch: $PR_HEAD_BRANCH → $PR_BASE_BRANCH"
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -71,6 +109,14 @@ jobs:
 
     - name: Build PR branch
       run: npm run build-nolog
+      env:
+        VITE_APP_VERSION: ${{ steps.version.outputs.version }}
+        VITE_COMMIT_SHA: ${{ github.sha }}
+        VITE_PR_NUMBER: ${{ steps.pr-metadata.outputs.number }}
+        VITE_PR_TITLE: ${{ steps.pr-metadata.outputs.title }}
+        VITE_PR_HEAD_BRANCH: ${{ steps.pr-metadata.outputs.head_branch }}
+        VITE_PR_BASE_BRANCH: ${{ steps.pr-metadata.outputs.base_branch }}
+        VITE_PR_URL: ${{ steps.pr-metadata.outputs.url }}
 
     - name: Upload PR build artifact
       uses: actions/upload-artifact@v4
@@ -138,6 +184,49 @@ jobs:
         fi
 
         echo "✅ All validation checks passed"
+
+    - name: Validate build metadata
+      run: |
+        echo "Validating build metadata..."
+        
+        # Check main build metadata
+        if [ ! -f "combined/.meta/build-info.json" ]; then
+          echo "::error::Missing build-info.json at root"
+          exit 1
+        fi
+        
+        if ! jq empty combined/.meta/build-info.json 2>/dev/null; then
+          echo "::error::Root build-info.json is not valid JSON"
+          exit 1
+        fi
+        
+        echo "✅ Root build metadata validated"
+        echo "::group::Root Build Info"
+        jq . combined/.meta/build-info.json
+        echo "::endgroup::"
+        
+        # Check preview build metadata (if preview exists)
+        if [ -d "combined/preview" ]; then
+          if [ ! -f "combined/preview/.meta/build-info.json" ]; then
+            echo "::error::Missing preview/.meta/build-info.json"
+            exit 1
+          fi
+          
+          if ! jq empty combined/preview/.meta/build-info.json 2>/dev/null; then
+            echo "::error::Preview build-info.json is not valid JSON"
+            exit 1
+          fi
+          
+          # Verify PR metadata is present
+          if ! jq -e ".pr_metadata" combined/preview/.meta/build-info.json > /dev/null 2>&1; then
+            echo "::warning::PR metadata missing from preview build-info.json"
+          fi
+          
+          echo "✅ Preview build metadata validated"
+          echo "::group::Preview Build Info"
+          jq . combined/preview/.meta/build-info.json
+          echo "::endgroup::"
+        fi
 
     - name: Log artifact structure
       run: |
