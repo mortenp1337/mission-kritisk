@@ -15,12 +15,6 @@ dist-pr
 combined
 *.local
 
-# Test artifacts
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -31,7 +25,3 @@ combined
 *.njsproj
 *.sln
 *.sw?
-
-# playwright test artifacts
-test-results/
-playwright-report/
