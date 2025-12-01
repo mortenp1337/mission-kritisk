@@ -18,14 +18,9 @@
         "build": "node log.js build & vite build --config vite/config.prod.mjs",
         "dev-nolog": "vite --config vite/config.dev.mjs",
         "build-nolog": "vite build --config vite/config.prod.mjs",
-        "preview": "serve dist -l 4173",
-        "test": "playwright test",
-        "test:headed": "playwright test --headed",
-        "test:ui": "playwright test --ui",
-        "test:prod": "playwright test --config playwright.config.prod.ts"
+        "preview": "serve dist -l 4173"
     },
     "devDependencies": {
-        "@playwright/test": "^1.56.1",
         "@types/node": "^24.10.1",
         "serve": "^14.2.5",
         "typescript": "~5.7.2",
