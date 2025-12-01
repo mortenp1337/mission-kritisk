@@ -1,6 +1,7 @@
 // GameSession singleton - persists game state across scenes
 import { GameSession as IGameSession, PlacedTowerData } from '../types/GameTypes';
 import { SPEED_CONTROL } from '../constants/speedControl';
+import { WAVE_PROGRESSION } from '../data/gameplayConfig';
 
 export class GameSession implements IGameSession {
     private static instance: GameSession;
@@ -33,9 +34,9 @@ export class GameSession implements IGameSession {
         this.difficulty = 1;
         this.category = '';
         this.challengeType = '';
-        this.coins = 0;
+        this.coins = WAVE_PROGRESSION.STARTING_COINS;
         this.currentWave = 1;
-        this.baseHealth = 10;
+        this.baseHealth = WAVE_PROGRESSION.BASE_HEALTH;
         this.placedTowers = [];
         this.problemsSolved = 0;
         this.totalScore = 0;
@@ -96,7 +97,7 @@ export class GameSession implements IGameSession {
     }
     
     incrementWave(): void {
-        if (this.currentWave < 5) {
+        if (this.currentWave < WAVE_PROGRESSION.TOTAL_WAVES) {
             this.currentWave++;
         }
     }
@@ -114,7 +115,7 @@ export class GameSession implements IGameSession {
     }
     
     hasWon(): boolean {
-        return this.currentWave > 5 && this.baseHealth > 0;
+        return this.currentWave > WAVE_PROGRESSION.TOTAL_WAVES && this.baseHealth > 0;
     }
     
     setGameSpeed(multiplier: number): void {

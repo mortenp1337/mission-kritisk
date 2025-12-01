@@ -2,6 +2,7 @@
 import { Scene, GameObjects } from 'phaser';
 import { DanishText } from '../data/danishText';
 import { GameSession } from '../systems/GameSession';
+import { WAVE_PROGRESSION } from '../data/gameplayConfig';
 import { Grid } from '../entities/Grid';
 import { BasicTower } from '../entities/towers/BasicTower';
 import { WaveManager } from '../systems/WaveManager';
@@ -59,7 +60,7 @@ export class DefenseWave extends Scene {
     
     private createUI(): void {
         // Wave counter
-        this.waveText = this.add.text(512, 30, DanishText.waveCounter(this.session.currentWave, 5), {
+        this.waveText = this.add.text(512, 30, DanishText.waveCounter(this.session.currentWave, WAVE_PROGRESSION.TOTAL_WAVES), {
             fontFamily: 'Arial Black',
             fontSize: 24,
             color: '#ffff00',
@@ -157,11 +158,11 @@ export class DefenseWave extends Scene {
                 this.scene.start('GameOver', { victory: true });
             });
         } else {
-            // Continue to next wave
-            this.session.incrementWave();
-            
+            // Continue to challenge phase (wave increment happens AFTER challenge)
             this.time.delayedCall(2000, () => {
-                this.scene.start('MathChallenge');
+                // Route to the appropriate challenge scene based on category
+                const challengeScene = this.session.category === 'logic' ? 'LogicChallenge' : 'MathChallenge';
+                this.scene.start(challengeScene);
             });
         }
     }

@@ -4,10 +4,10 @@ import { WaveConfig } from '../types/EnemyTypes';
 /**
  * Calculate wave configuration based on wave number
  * Wave scaling formula:
- * - Zombie count: floor(5 * 1.2^(n-1))
+ * - Zombie count: floor(5 * 2^(n-1)) (doubles each wave)
  * - Zombie health: 5 + (n-1)
  * - Zombie speed: n >= 4 ? 50 * (1 + (n-3) * 0.1) : 50
- * - Coin per problem: 10 + (n-1) * 5
+ * - Coin per problem: 25 (constant)
  * - Bonus coins: 25 (constant)
  */
 export function calculateWaveConfig(waveNumber: number): WaveConfig {
@@ -18,17 +18,16 @@ export function calculateWaveConfig(waveNumber: number): WaveConfig {
     const baseZombies = 5;
     const baseHealth = 5;
     const baseSpeed = 50;
-    const baseCoinReward = 10;
+    const coinPerProblem = 25; // Fixed: 25 coins per correct answer
     const bonusCoins = 25;
     const spawnInterval = 2000; // 2 seconds
     
-    // Calculate scaled values
-    const zombieCount = Math.floor(baseZombies * Math.pow(1.2, waveNumber - 1));
+    // Calculate scaled values - zombies now double each wave
+    const zombieCount = Math.floor(baseZombies * Math.pow(2, waveNumber - 1));
     const health = baseHealth + (waveNumber - 1);
     const speed = waveNumber >= 4 
         ? baseSpeed * (1 + (waveNumber - 3) * 0.1)
         : baseSpeed;
-    const coinPerProblem = baseCoinReward + (waveNumber - 1) * 5;
     
     return {
         waveNumber,
